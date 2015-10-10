@@ -167,7 +167,7 @@ int WINAPI WinMain(HINSTANCE hInstance,
 
 	MSG msg;
 	HACCEL hAccel;
-  lstrcpy(app_name,"SafeSex_");
+  StringCchCopy(app_name, _countof(app_name), "SafeSex_");
 	lstrcpyn(app_name+8,profilename,sizeof(app_name)-8);
 	
 	if (FindWindow(app_name,NULL)) return 0;
@@ -798,7 +798,7 @@ static int _r_i(char *name, int def)
 static void _w_i(char *name, int d)
 {
 	char str[120];
-	wsprintf(str,"%d",d);
+	StringCchPrintf(str, _countof(str), "%d",d);
 	WritePrivateProfileString(APP_NAME,name,str,ini_file);
 }
 #define WI(x) _w_i(#x,( x ))
