@@ -108,18 +108,18 @@ int WINAPI WinMain(HINSTANCE hInstance,
   {
     while (*lpCmdLine)
     {
-      if (!strnicmp(lpCmdLine,"/ONCE",5) && (lpCmdLine[5] == ' ' || !lpCmdLine[5]))
+      if (!_strnicmp(lpCmdLine,"/ONCE",5) && (lpCmdLine[5] == ' ' || !lpCmdLine[5]))
       {
         lpCmdLine += 5;
         g_mode=MODE_ONCE;
       }
-      if (!strnicmp(lpCmdLine,"/ONESESSION",11) && (lpCmdLine[11] == ' ' || !lpCmdLine[11]))
+      if (!_strnicmp(lpCmdLine,"/ONESESSION",11) && (lpCmdLine[11] == ' ' || !lpCmdLine[11]))
       {
         lpCmdLine += 11;
         g_mode=MODE_SESSION;
       }
 
-      if (!strnicmp(lpCmdLine,"/PROFILE=",9))
+      if (!_strnicmp(lpCmdLine,"/PROFILE=",9))
       {
         lstrcpyn(profilename,lpCmdLine+9,sizeof(profilename));
         break;
@@ -1303,7 +1303,7 @@ BOOL WINAPI ProfilesProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
                 *++p=0;
                 strcat(tmp,pep_n);
                 strcat(tmp,".sex");
-                if (stricmp(tmp,oldfn))
+                if (_stricmp(tmp,oldfn))
                 {
                   BOOL ret;
                   if (LOWORD(wParam) == IDC_RENAME) ret=MoveFile(oldfn,tmp);
