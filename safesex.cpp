@@ -342,7 +342,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		            }
 		            write_text();
 
-	              SetWindowLong(hwnd_rich,GWL_WNDPROC,(int)Rich_OldWndProc);
+	              SetWindowLongPtr(hwnd_rich,GWLP_WNDPROC,(LONG_PTR)Rich_OldWndProc);
                 DestroyWindow(hwnd_rich);
                 hwnd_rich=0;
                 set_inactive(hwnd);
@@ -407,13 +407,13 @@ static void OnLButtonDown(HWND hwnd, BOOL fDoubleClick, int x, int y, UINT keyFl
 		  hwnd, NULL,hMainInstance,NULL);
     SendMessage(hwnd_rich, EM_SETEVENTMASK, 0, ENM_LINK);
     SendMessage(hwnd_rich, EM_AUTOURLDETECT, 1, 0);
-	  Rich_OldWndProc = (WNDPROC) SetWindowLong(hwnd_rich,GWL_WNDPROC,(int)Rich_WndProc);
+	  Rich_OldWndProc = (WNDPROC) SetWindowLongPtr(hwnd_rich,GWLP_WNDPROC,(LONG_PTR)Rich_WndProc);
 	  SendMessage(hwnd_rich,EM_SETBKGNDCOLOR,FALSE,config_color);
     int a;
     g_noclose++;
 	  if ((a=read_text()))
     {
-	    SetWindowLong(hwnd_rich,GWL_WNDPROC,(int)Rich_OldWndProc);
+	    SetWindowLongPtr(hwnd_rich,GWLP_WNDPROC,(LONG_PTR)Rich_OldWndProc);
       DestroyWindow(hwnd_rich);
       hwnd_rich=0;
       set_inactive(hwnd);      
@@ -468,7 +468,7 @@ static void OnClose(HWND hwnd)
     g_noclose++;
 	  write_text();
     g_noclose--;
-    SetWindowLong(hwnd_rich,GWL_WNDPROC,(int)Rich_OldWndProc);
+    SetWindowLongPtr(hwnd_rich,GWLP_WNDPROC,(LONG_PTR)Rich_OldWndProc);
     DestroyWindow(hwnd_rich);
     hwnd_rich=0;
     set_inactive(hwnd);
@@ -617,7 +617,7 @@ static void OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
 		      }
 		      write_text();
 
-	        SetWindowLong(hwnd_rich,GWL_WNDPROC,(int)Rich_OldWndProc);
+	        SetWindowLongPtr(hwnd_rich,GWLP_WNDPROC,(LONG_PTR)Rich_OldWndProc);
           DestroyWindow(hwnd_rich);
           hwnd_rich=0;
           set_inactive(hwnd);
@@ -643,7 +643,7 @@ static void OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
 		    }
 		    write_text();
 
-	      SetWindowLong(hwnd_rich,GWL_WNDPROC,(int)Rich_OldWndProc);
+	      SetWindowLongPtr(hwnd_rich,GWLP_WNDPROC,(LONG_PTR)Rich_OldWndProc);
         DestroyWindow(hwnd_rich);
         hwnd_rich=0;
         set_inactive(hwnd);
