@@ -411,7 +411,8 @@ static void OnLButtonDown(HWND hwnd, BOOL /*fDoubleClick*/, int /*x*/, int /*y*/
 	  SendMessage(hwnd_rich,EM_SETBKGNDCOLOR,FALSE,config_color);
     int a;
     g_noclose++;
-	  if ((a=read_text()))
+	a = read_text();
+	  if (a)
     {
 	    SetWindowLongPtr(hwnd_rich,GWLP_WNDPROC,(LONG_PTR)Rich_OldWndProc);
       DestroyWindow(hwnd_rich);
