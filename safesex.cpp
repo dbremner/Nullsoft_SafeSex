@@ -71,8 +71,11 @@ static int g_noclose;
 static int g_active_cnt;
 static int g_active;
 static int moved = 0;
-static int config_w = 300, config_h = 200, config_x = 50, config_y = 50, config_border = 5,
-	config_color=RGB(80,37,187), config_bcolor1=RGB(150,150,150), config_bcolor2=0, config_aot=1;
+static int config_w = 300, config_h = 200, config_x = 50, config_y = 50, config_border = 5;
+static COLORREF config_color = RGB(80, 37, 187);
+static COLORREF config_bcolor1 = RGB(150, 150, 150);
+static COLORREF config_bcolor2 = 0;
+static int config_aot = 1;
 
 static char app_name[32 + MAX_PATH];
 static char text_file[MAX_PATH];
@@ -408,7 +411,7 @@ static void OnLButtonDown(HWND hwnd, BOOL /*fDoubleClick*/, int /*x*/, int /*y*/
     SendMessage(hwnd_rich, EM_SETEVENTMASK, 0, ENM_LINK);
     SendMessage(hwnd_rich, EM_AUTOURLDETECT, 1, 0);
 	  Rich_OldWndProc = (WNDPROC) SetWindowLongPtr(hwnd_rich,GWLP_WNDPROC,(LONG_PTR)Rich_WndProc);
-	  SendMessage(hwnd_rich,EM_SETBKGNDCOLOR,FALSE,config_color);
+	  SendMessage(hwnd_rich,EM_SETBKGNDCOLOR,FALSE,(LPARAM)config_color);
     int a;
     g_noclose++;
 	a = read_text();
@@ -588,7 +591,7 @@ BOOL WINAPI PasswdProc2(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM /*lParam*
 
 static void OnCommand(HWND hwnd, int id, HWND /*hwndCtl*/, UINT /*codeNotify*/)
 {
-	int *c=NULL;
+	COLORREF *c=NULL;
 	switch (id)
 	{
     case ID_CHPASS:
@@ -734,7 +737,7 @@ static void OnCommand(HWND hwnd, int id, HWND /*hwndCtl*/, UINT /*codeNotify*/)
 				{
 					*c=cs.rgbResult;
 					config_write();
-					SendMessage(hwnd_rich,EM_SETBKGNDCOLOR,FALSE,config_color);
+					SendMessage(hwnd_rich,EM_SETBKGNDCOLOR,FALSE,(LPARAM)config_color);
 					InvalidateRect(hwnd,NULL,0);
 				}
         g_noclose--;
@@ -1318,7 +1321,7 @@ BOOL WINAPI ProfilesProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM /*lParam
 
                     if (LOWORD(wParam) == IDC_RENAME) SendDlgItemMessage(hwndDlg,IDC_LIST1,LB_DELETESTRING,(WPARAM)l,0);
 
-                    l=SendDlgItemMessage(hwndDlg,IDC_LIST1,LB_ADDSTRING,0,(WPARAM)pep_n);
+                    l=SendDlgItemMessage(hwndDlg,IDC_LIST1,LB_ADDSTRING,0,(LPARAM)pep_n);
                     SendDlgItemMessage(hwndDlg,IDC_LIST1,LB_SETCURSEL,(WPARAM)l,0);
                   }
                   else MessageBox(hwndDlg,LOWORD(wParam) == IDC_RENAME ? "Error renaming profile" : "Error copying profile",APP_NAME " Error",MB_OK|MB_ICONEXCLAMATION);
@@ -1353,7 +1356,7 @@ BOOL WINAPI ProfilesProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM /*lParam
               if (h != INVALID_HANDLE_VALUE)
               {
                 CloseHandle(h);
-                int l=SendDlgItemMessage(hwndDlg,IDC_LIST1,LB_ADDSTRING,0,(WPARAM)pep_n);
+                int l=SendDlgItemMessage(hwndDlg,IDC_LIST1,LB_ADDSTRING,0,(LPARAM)pep_n);
                 SendDlgItemMessage(hwndDlg,IDC_LIST1,LB_SETCURSEL,(WPARAM)l,0);
               }
               else MessageBox(hwndDlg,"Error creating profile",APP_NAME " Error",MB_OK|MB_ICONEXCLAMATION);
@@ -1384,7 +1387,7 @@ BOOL WINAPI ProfilesProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM /*lParam
               {
                 strcpy(tmp+strlen(tmp)-3,"ini");
                 DeleteFile(tmp);
-                SendDlgItemMessage(hwndDlg,IDC_LIST1,LB_DELETESTRING,l,0);
+                SendDlgItemMessage(hwndDlg,IDC_LIST1,LB_DELETESTRING,(WPARAM)l,0);
               }
               else MessageBox(hwndDlg,"Error deleting profile",APP_NAME " Error",MB_OK|MB_ICONEXCLAMATION);              
             }
