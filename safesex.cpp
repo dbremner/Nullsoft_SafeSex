@@ -44,55 +44,55 @@
 **   rtf data, padded to 8 bytes
 */
 
-const unsigned char file_sig[12]={'S','A','F','E','S','E','X',26,0xBE,0xEF,0xF0,0x0D};
-const unsigned char data_sig[8]={'S','A','F','E','S','E','X','1'};
+static const unsigned char file_sig[12]={'S','A','F','E','S','E','X',26,0xBE,0xEF,0xF0,0x0D};
+static const unsigned char data_sig[8] = { 'S', 'A', 'F', 'E', 'S', 'E', 'X', '1' };
 
-unsigned char g_file_revision[8];
+static unsigned char g_file_revision[8];
 
-unsigned int file_timeout=30000;
-int g_keyvalid;
-unsigned int g_keytimeouttime;
-unsigned char g_shakey[20];
+static unsigned int file_timeout = 30000;
+static int g_keyvalid;
+static unsigned int g_keytimeouttime;
+static unsigned char g_shakey[20];
 
 
-unsigned char g_bf_cbc[8];
-BLOWFISH_CTX g_bf;
+static unsigned char g_bf_cbc[8];
+static BLOWFISH_CTX g_bf;
 #define CLEAR_BF { memset(&g_bf,0,sizeof(g_bf)); memset(g_bf_cbc,0,sizeof(g_bf_cbc)); }
 
-int g_text_dirty;
+static int g_text_dirty;
 
 
 #define MODE_NORMAL 0
 #define MODE_ONCE 1
 #define MODE_SESSION 2
-int g_mode=MODE_NORMAL;
+static int g_mode = MODE_NORMAL;
 
-int g_noclose;
-int g_active_cnt;
-int g_active;
-int moved=0;
-int config_w=300, config_h=200,config_x=50,config_y=50,config_border=5,
+static int g_noclose;
+static int g_active_cnt;
+static int g_active;
+static int moved = 0;
+static int config_w = 300, config_h = 200, config_x = 50, config_y = 50, config_border = 5,
 	config_color=RGB(80,37,187), config_bcolor1=RGB(150,150,150), config_bcolor2=0, config_aot=1;
 
-char app_name[32+MAX_PATH];
-char text_file[MAX_PATH];
-char ini_file[MAX_PATH];
-char exe_file[MAX_PATH];
-char profilename[256];
+static char app_name[32 + MAX_PATH];
+static char text_file[MAX_PATH];
+static char ini_file[MAX_PATH];
+static char exe_file[MAX_PATH];
+static char profilename[256];
 
-void config_read();
-int read_text(); // 1 on error
-void write_text();
-void config_write();
+static void config_read();
+static int read_text(); // 1 on error
+static void write_text();
+static void config_write();
 
-HMENU hmenu_main;
-HWND hwnd_rich,hwnd_main;
+static HMENU hmenu_main;
+static HWND hwnd_rich, hwnd_main;
 
-HINSTANCE hMainInstance;
+static HINSTANCE hMainInstance;
 BOOL WINAPI ProfilesProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
-BOOL InitApplication(HINSTANCE hInstance);
-BOOL InitInstance(HINSTANCE hInstance, int nCmdShow);
+static BOOL InitApplication(HINSTANCE hInstance);
+static BOOL InitInstance(HINSTANCE hInstance, int nCmdShow);
 
 LRESULT CALLBACK WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
@@ -200,7 +200,7 @@ int WINAPI WinMain(HINSTANCE hInstance,
 	return 0;
 } // WinMain
 
-void set_inactive(HWND hwnd)
+static void set_inactive(HWND hwnd)
 {
 	if (g_active)
 	{
@@ -229,7 +229,7 @@ void set_inactive(HWND hwnd)
 }
 
 
-BOOL InitApplication(HINSTANCE hInstance)
+static BOOL InitApplication(HINSTANCE hInstance)
 {
 	WNDCLASS wc;	
 	wc.style = CS_DBLCLKS|CS_VREDRAW|CS_HREDRAW;
@@ -246,7 +246,7 @@ BOOL InitApplication(HINSTANCE hInstance)
 	return TRUE;
 }
 
-BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
+static BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 {
 	int style = 0;
   int exStyle = WS_EX_TOOLWINDOW|(config_aot?WS_EX_TOPMOST:0);
@@ -262,7 +262,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 
 	return TRUE;
 }
-WNDPROC Rich_OldWndProc;
+static WNDPROC Rich_OldWndProc;
 
 static BOOL OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct);
 static void OnDestroy(HWND hwnd);
@@ -801,7 +801,7 @@ static void _w_i(char *name, int d)
 
 
 
-void config_read()
+static void config_read()
 {
 	char *p;
 	GetModuleFileName(hMainInstance,ini_file,sizeof(ini_file));
@@ -972,7 +972,7 @@ int GetPasswordFromUser(int ispass) // 1 on cancel, 2 on close
   return DialogBox(hMainInstance,MAKEINTRESOURCE(IDD_DIALOG1),hwnd_main,PasswdProc1);
 }
 
-int read_text()
+static int read_text()
 {
   int reqpass=0;
 again:
@@ -1090,7 +1090,7 @@ again:
   return 0;
 }
 
-void write_text()
+static void write_text()
 {
   int err=0;
   if (!g_text_dirty||!hwnd_rich) return;
@@ -1159,7 +1159,7 @@ again:
   }
 }
 
-void config_write()
+static void config_write()
 {
 	RECT r;
 	if (g_active) 
