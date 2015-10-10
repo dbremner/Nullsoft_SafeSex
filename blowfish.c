@@ -4,7 +4,6 @@
  */
 
 #include "stdafx.h"
-#include <windows.h>
 #include "blowfish.h"
 
 #define N 16
