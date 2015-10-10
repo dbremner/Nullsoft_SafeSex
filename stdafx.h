@@ -5,6 +5,7 @@
 #include <richedit.h>
 #include <shellapi.h>
 #include <commdlg.h>
+#include <strsafe.h>
 
 //project
 #include "blowfish.h"

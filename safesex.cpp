@@ -676,7 +676,7 @@ static void OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
 				cf.hwndOwner=hwnd;
 				cf.lpLogFont=&lf;
 				SendMessage(hwnd_rich,EM_GETCHARFORMAT,1,(LPARAM)&fmt);
-				if (fmt.dwMask & CFM_FACE) strcpy(lf.lfFaceName,fmt.szFaceName);
+				if (fmt.dwMask & CFM_FACE) StringCchCopy(lf.lfFaceName, _countof(lf.lfFaceName), fmt.szFaceName);
 				else lf.lfFaceName[0]=0;
 				if (fmt.dwMask & CFM_SIZE) lf.lfHeight=fmt.yHeight/15;
 				else lf.lfHeight=0;
@@ -706,7 +706,7 @@ static void OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
 					fmt.crTextColor=cf.rgbColors;
 					fmt.bPitchAndFamily=lf.lfPitchAndFamily;
 					fmt.bCharSet = lf.lfCharSet;
-					strcpy(fmt.szFaceName,lf.lfFaceName);
+					StringCchCopy(fmt.szFaceName, _countof(fmt.szFaceName), lf.lfFaceName);
 					SendMessage(hwnd_rich,EM_SETCHARFORMAT,SCF_SELECTION,(LPARAM)&fmt);
 				}
         g_noclose--;
@@ -808,18 +808,18 @@ static void config_read()
 
   exe_file[0]='\"';
 	strcpy(exe_file+1,ini_file);
-  strcat(exe_file,"\" /PROFILE=");
-  strcat(exe_file,profilename);
+  StringCchCat(exe_file, _countof(exe_file), "\" /PROFILE=");
+  StringCchCat(exe_file, _countof(exe_file), profilename);
 
 
 	p=ini_file+strlen(ini_file);
 	while (p >= ini_file && *p != '\\') p--;
   strcpy(++p,profilename);
 
-  strcpy(text_file,ini_file);
-  strcat(text_file,".sex");
+  StringCchCopy(text_file, _countof(text_file), ini_file);
+  StringCchCat(text_file, _countof(text_file), ".sex");
 
-  strcat(ini_file,".ini");
+  StringCchCat(ini_file, _countof(ini_file), ".ini");
 
   RI(config_aot);
 	RI(config_x);
@@ -1230,7 +1230,7 @@ BOOL WINAPI ProfilesProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		    while (*p) p++;
     		while (p >= tmp && *p != '\\') p--;
         *++p=0;
-        strcat(tmp,"*.sex");
+        StringCchCat(tmp, _countof(tmp), "*.sex");
         h=FindFirstFile(tmp,&fd);
         if (h)
         {
@@ -1281,14 +1281,14 @@ BOOL WINAPI ProfilesProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		          while (*p) p++;
     		      while (p >= oldfn && *p != '\\') p--;
               *++p=0;
-              strcat(oldfn,pep_n);
-              strcat(oldfn,".sex");
+              StringCchCat(oldfn, _countof(oldfn), pep_n);
+              StringCchCat(oldfn, _countof(oldfn), ".sex");
 
               if (!DialogBox(hMainInstance,MAKEINTRESOURCE(IDD_PROFILE_MOD),hwndDlg,ProfEditProc) && pep_n[0])
               {
                 char tmp[1024+1024];
-                strcpy(tmp,"SafeSex_");
-                strcat(tmp,pep_n);
+                StringCchCopy(tmp, _countof(tmp), "SafeSex_");
+				StringCchCat(tmp, _countof(tmp), pep_n);
 	              if (FindWindow(tmp,NULL)) 
                 {
                   MessageBox(hwndDlg,"Can't copy or rename profile of that name, currently running",APP_NAME " Error",MB_OK|MB_ICONEXCLAMATION);
@@ -1299,8 +1299,8 @@ BOOL WINAPI ProfilesProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		            while (*p) p++;
     		        while (p >= tmp && *p != '\\') p--;
                 *++p=0;
-                strcat(tmp,pep_n);
-                strcat(tmp,".sex");
+				StringCchCat(tmp, _countof(tmp), pep_n);
+				StringCchCat(tmp, _countof(tmp), ".sex");
                 if (_stricmp(tmp,oldfn))
                 {
                   BOOL ret;
@@ -1329,12 +1329,12 @@ BOOL WINAPI ProfilesProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
         case IDC_CREATE:
           {
             pep_mode=2;
-            strcpy(pep_n,"NULL");
+            StringCchCopy(pep_n, _countof(pep_n), "NULL");
             if (!DialogBox(hMainInstance,MAKEINTRESOURCE(IDD_PROFILE_MOD),hwndDlg,ProfEditProc) && pep_n[0])
             {
               char tmp[1024+1024];
-              strcpy(tmp,"SafeSex_");
-              strcat(tmp,pep_n);
+			  StringCchCopy(tmp, _countof(tmp), "SafeSex_");
+			  StringCchCat(tmp, _countof(tmp), pep_n);
 	            if (FindWindow(tmp,NULL)) 
               {
                 MessageBox(hwndDlg,"Can't create profile of that name, already running",APP_NAME " Error",MB_OK|MB_ICONEXCLAMATION);
@@ -1346,8 +1346,8 @@ BOOL WINAPI ProfilesProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		          while (*p) p++;
     		      while (p >= tmp && *p != '\\') p--;
               *++p=0;
-              strcat(tmp,pep_n);
-              strcat(tmp,".sex");
+			  StringCchCat(tmp, _countof(tmp), pep_n);
+			  StringCchCat(tmp, _countof(tmp), ".sex");
               HANDLE h=CreateFile(tmp,0,0,NULL,CREATE_NEW,0,NULL);
               if (h != INVALID_HANDLE_VALUE)
               {
@@ -1365,7 +1365,7 @@ BOOL WINAPI ProfilesProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
             if (l != LB_ERR)
             {
               char tmp[1024+1024];
-              strcpy(tmp,"SafeSex_");
+			  StringCchCopy(tmp, _countof(tmp), "SafeSex_");
               SendDlgItemMessage(hwndDlg,IDC_LIST1,LB_GETTEXT,(WPARAM)l,(LPARAM)(tmp+strlen(tmp)));
 	            if (FindWindow(tmp,NULL)) 
               {
@@ -1378,7 +1378,7 @@ BOOL WINAPI ProfilesProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
     		      while (p >= tmp && *p != '\\') p--;
               *++p=0;
               SendDlgItemMessage(hwndDlg,IDC_LIST1,LB_GETTEXT,(WPARAM)l,(LPARAM)(tmp+strlen(tmp)));
-              strcat(tmp,".sex");
+			  StringCchCat(tmp, _countof(tmp), ".sex");
               if (DeleteFile(tmp))
               {
                 strcpy(tmp+strlen(tmp)-3,"ini");
