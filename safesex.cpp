@@ -98,9 +98,9 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
 
 int WINAPI WinMain(HINSTANCE hInstance,
-                     HINSTANCE hPrevInstance,
+                     HINSTANCE,
                      LPSTR     lpCmdLine,
-                     int       nCmdShow) 
+                     int) 
 {
   if (lpCmdLine)
   {
@@ -385,13 +385,13 @@ LRESULT CALLBACK Rich_WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam
 	return CallWindowProc(Rich_OldWndProc,hwnd,uMsg,wParam,lParam);
 }
 
-static void OnGetMinMaxInfo(HWND hwnd, LPMINMAXINFO lpMinMaxInfo)
+static void OnGetMinMaxInfo(HWND /*hwnd*/, LPMINMAXINFO lpMinMaxInfo)
 {
   lpMinMaxInfo->ptMinTrackSize.x=50;
   lpMinMaxInfo->ptMinTrackSize.y=20;
 }
 
-static void OnLButtonDown(HWND hwnd, BOOL fDoubleClick, int x, int y, UINT keyFlags)
+static void OnLButtonDown(HWND hwnd, BOOL /*fDoubleClick*/, int /*x*/, int /*y*/, UINT /*keyFlags*/)
 {
 	if (!g_active)
 	{
@@ -426,7 +426,7 @@ static void OnLButtonDown(HWND hwnd, BOOL fDoubleClick, int x, int y, UINT keyFl
 	}
 }
 
-static BOOL OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
+static BOOL OnCreate(HWND hwnd, LPCREATESTRUCT /*lpCreateStruct*/)
 {
 	hwnd_main=hwnd;
 	hmenu_main=LoadMenu(hMainInstance,MAKEINTRESOURCE(IDR_MENU1));
@@ -450,7 +450,7 @@ static BOOL OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
 	return 1;
 }
 
-static void OnDestroy(HWND hwnd)
+static void OnDestroy(HWND /*hwnd*/)
 {
 }
 
@@ -504,7 +504,7 @@ static UINT OnNCHitTest(HWND hwnd, int x, int y)
 	return HTCLIENT;
 }
 
-BOOL WINAPI TimeoutProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
+BOOL WINAPI TimeoutProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM /*lParam*/)
 {
   if (uMsg == WM_INITDIALOG)
   {
@@ -534,7 +534,7 @@ BOOL WINAPI TimeoutProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
   return 0;
 }
 
-BOOL WINAPI PasswdProc2(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
+BOOL WINAPI PasswdProc2(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM /*lParam*/)
 {
   if (uMsg == WM_INITDIALOG)
   {
@@ -585,7 +585,7 @@ BOOL WINAPI PasswdProc2(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 }
 
 
-static void OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
+static void OnCommand(HWND hwnd, int id, HWND /*hwndCtl*/, UINT /*codeNotify*/)
 {
 	int *c=NULL;
 	switch (id)
@@ -742,13 +742,13 @@ static void OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
 	}
 }
 
-static void OnSize(HWND hwnd, UINT state, int cx, int cy)
+static void OnSize(HWND /*hwnd*/, UINT /*state*/, int cx, int cy)
 {
 	moved=1;
 	SetWindowPos(hwnd_rich, 0, config_border,config_border*3+3, cx-config_border*2,cy-config_border*4-3, SWP_NOACTIVATE|SWP_NOZORDER);
 }
 
-static void OnMove(HWND hwnd, int x, int y)
+static void OnMove(HWND /*hwnd*/, int /*x*/, int /*y*/)
 {
 	moved=1;
 }
@@ -887,7 +887,7 @@ DWORD CALLBACK esCb(DWORD dwCookie, LPBYTE pbBuff, LONG cb, DWORD *pcb)
 	return 0;
 }
  
-BOOL WINAPI PasswdProc1_new(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
+BOOL WINAPI PasswdProc1_new(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM /*lParam*/)
 {
   if (uMsg == WM_INITDIALOG)
   {
@@ -931,7 +931,7 @@ BOOL WINAPI PasswdProc1_new(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPara
   return 0;
 }
 
-BOOL WINAPI PasswdProc1(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
+BOOL WINAPI PasswdProc1(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM /*lParam*/)
 {
   if (uMsg == WM_INITDIALOG)
   {
@@ -1188,7 +1188,7 @@ static void config_write()
 static int pep_mode; //copy,rename,create
 static char pep_n[128];
 
-static BOOL WINAPI ProfEditProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam) 
+static BOOL WINAPI ProfEditProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM /*lParam*/) 
 {
   switch (uMsg)
   {
@@ -1211,7 +1211,7 @@ static BOOL WINAPI ProfEditProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM l
   return 0;
 }
 
-BOOL WINAPI ProfilesProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam) 
+BOOL WINAPI ProfilesProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM /*lParam*/) 
 {
   switch (uMsg)
   {
