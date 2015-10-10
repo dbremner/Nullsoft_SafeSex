@@ -78,6 +78,19 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="blowfish.c" />
+    <ClCompile Include="safesex.cpp" />
+    <ClCompile Include="sha.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="blowfish.h" />
+    <ClInclude Include="sha.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="icon1.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="safesex.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
