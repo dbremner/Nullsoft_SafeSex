@@ -122,7 +122,7 @@ int WINAPI WinMain(HINSTANCE hInstance,
 
       if (!_strnicmp(lpCmdLine,"/PROFILE=",9))
       {
-        lstrcpyn(profilename,lpCmdLine+9,sizeof(profilename));
+        lstrcpyn(profilename,lpCmdLine+9,_countof(profilename));
         break;
       }
       lpCmdLine++;
@@ -153,13 +153,13 @@ int WINAPI WinMain(HINSTANCE hInstance,
   if (!profilename[0])
   {
 		char b[MAX_PATH],*p=b;
-		GetModuleFileName(hInstance,b,sizeof(b));
+		GetModuleFileName(hInstance,b,_countof(b));
 		while (*p) p++;
 		while (p > b && *p != '.') p--;
 		if (p > b) *p = 0;
 		while (p >= b && *p != '\\') p--;
     if (p >= b) *p=0;
-    lstrcpyn(profilename,++p,sizeof(profilename));
+    lstrcpyn(profilename,++p,_countof(profilename));
 
     if (!DialogBox(hInstance,MAKEINTRESOURCE(IDD_PROFILES),GetDesktopWindow(),ProfilesProc))
       return 0;
@@ -168,7 +168,7 @@ int WINAPI WinMain(HINSTANCE hInstance,
 	MSG msg;
 	HACCEL hAccel;
   StringCchCopy(app_name, _countof(app_name), "SafeSex_");
-	lstrcpyn(app_name+8,profilename,sizeof(app_name)-8);
+	lstrcpyn(app_name+8,profilename,_countof(app_name)-8);
 	
 	if (FindWindow(app_name,NULL)) return 0;
 
@@ -304,7 +304,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
            HWND h=l->hwndFrom;
            CHARRANGE c;
            SendMessage(h,EM_EXGETSEL,0,(LPARAM)&c);
-           if (c.cpMin == c.cpMax && c.cpMax-c.cpMin < sizeof(tmp)-4)
+           if (c.cpMin == c.cpMax && c.cpMax-c.cpMin < _countof(tmp)-4)
            {
              TEXTRANGE r;
              r.chrg=el->chrg;
@@ -550,7 +550,7 @@ BOOL WINAPI PasswdProc2(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM /*lParam*
     {
       char buf[1024],buf2[1024];
       memset(buf,0,sizeof(buf));
-      GetDlgItemText(hwndDlg,IDC_EDIT1,buf,sizeof(buf)-1);
+      GetDlgItemText(hwndDlg,IDC_EDIT1,buf,_countof(buf)-1);
       SHAify s;
       s.add((unsigned char *)buf,strlen(buf));
       memset(buf,0,sizeof(buf));
@@ -562,8 +562,8 @@ BOOL WINAPI PasswdProc2(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM /*lParam*
         MessageBox(hwndDlg,"Invalid old passphrase",APP_NAME,MB_OK);
         return 0;
       }
-      GetDlgItemText(hwndDlg,IDC_EDIT2,buf,sizeof(buf)-1);
-      GetDlgItemText(hwndDlg,IDC_EDIT3,buf2,sizeof(buf2)-1);
+      GetDlgItemText(hwndDlg,IDC_EDIT2,buf,_countof(buf)-1);
+      GetDlgItemText(hwndDlg,IDC_EDIT3,buf2,_countof(buf2)-1);
       if (strcmp(buf,buf2))
       {
         MessageBox(hwndDlg,"New passphrases do not match",APP_NAME,MB_OK);
@@ -627,7 +627,7 @@ static void OnCommand(HWND hwnd, int id, HWND /*hwndCtl*/, UINT /*codeNotify*/)
           set_inactive(hwnd);
         }
         char buf[1024];
-        GetModuleFileName(hMainInstance,buf,sizeof(buf));
+        GetModuleFileName(hMainInstance,buf,_countof(buf));
         ShellExecute(hwnd,"open",buf,"",".",SW_SHOW);
       }
     return;
@@ -808,7 +808,7 @@ static void _w_i(char *name, int d)
 static void config_read()
 {
 	char *p;
-	GetModuleFileName(hMainInstance,ini_file,sizeof(ini_file));
+	GetModuleFileName(hMainInstance,ini_file,_countof(ini_file));
 
   exe_file[0]='\"';
 	strcpy(exe_file+1,ini_file);
@@ -906,8 +906,8 @@ BOOL WINAPI PasswdProc1_new(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM /*lPa
       char buf[1024];
       char buf2[1024];
       memset(buf,0,sizeof(buf));
-      GetDlgItemText(hwndDlg,IDC_EDIT2,buf,sizeof(buf)-1);
-      GetDlgItemText(hwndDlg,IDC_EDIT3,buf2,sizeof(buf2)-1);
+      GetDlgItemText(hwndDlg,IDC_EDIT2,buf,_countof(buf)-1);
+      GetDlgItemText(hwndDlg,IDC_EDIT3,buf2,_countof(buf2)-1);
       if (strcmp(buf,buf2))
       {
         MessageBox(hwndDlg,"New passphrases do not match",APP_NAME,MB_OK);
@@ -947,7 +947,7 @@ BOOL WINAPI PasswdProc1(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM /*lParam*
     {
       char buf[1024];
       memset(buf,0,sizeof(buf));
-      GetDlgItemText(hwndDlg,IDC_EDIT1,buf,sizeof(buf)-1);
+      GetDlgItemText(hwndDlg,IDC_EDIT1,buf,_countof(buf)-1);
       SHAify s;
       s.add((unsigned char *)buf,strlen(buf));
       memset(buf,0,sizeof(buf));
@@ -1206,7 +1206,7 @@ static BOOL WINAPI ProfEditProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM /
       {
         case IDOK:
         case IDCANCEL:
-          GetDlgItemText(hwndDlg,IDC_EDIT2,pep_n,sizeof(pep_n));
+          GetDlgItemText(hwndDlg,IDC_EDIT2,pep_n,_countof(pep_n));
           EndDialog(hwndDlg,LOWORD(wParam)==IDCANCEL);
         return 0;
       }
@@ -1230,7 +1230,7 @@ BOOL WINAPI ProfilesProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM /*lParam
 
         int gotDefault=0;
         char tmp[1024],*p=tmp;
-		    GetModuleFileName(hMainInstance,tmp,sizeof(tmp));
+		    GetModuleFileName(hMainInstance,tmp,_countof(tmp));
 		    while (*p) p++;
     		while (p >= tmp && *p != '\\') p--;
         *++p=0;
@@ -1248,7 +1248,7 @@ BOOL WINAPI ProfilesProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM /*lParam
               if (p > fd.cFileName)
               {
                 *p=0;
-                if (strlen(fd.cFileName) < sizeof(profilename))
+                if (strlen(fd.cFileName) < _countof(profilename))
                 {
                   SendMessage(hwndList,LB_ADDSTRING,0,(LPARAM)fd.cFileName);
                   gotDefault=1;
@@ -1281,7 +1281,7 @@ BOOL WINAPI ProfilesProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM /*lParam
               SendDlgItemMessage(hwndDlg,IDC_LIST1,LB_GETTEXT,(WPARAM)l,(LPARAM)pep_n);
               char oldfn[1024+1024];
               char *p=oldfn;
-		          GetModuleFileName(hMainInstance,oldfn,sizeof(oldfn));
+		          GetModuleFileName(hMainInstance,oldfn,_countof(oldfn));
 		          while (*p) p++;
     		      while (p >= oldfn && *p != '\\') p--;
               *++p=0;
@@ -1299,7 +1299,7 @@ BOOL WINAPI ProfilesProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM /*lParam
                   return 0;
                 }
                 char *p=tmp;
-		            GetModuleFileName(hMainInstance,tmp,sizeof(tmp));
+		            GetModuleFileName(hMainInstance,tmp,_countof(tmp));
 		            while (*p) p++;
     		        while (p >= tmp && *p != '\\') p--;
                 *++p=0;
@@ -1346,7 +1346,7 @@ BOOL WINAPI ProfilesProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM /*lParam
               }
 
               char *p=tmp;
-		          GetModuleFileName(hMainInstance,tmp,sizeof(tmp));
+		          GetModuleFileName(hMainInstance,tmp,_countof(tmp));
 		          while (*p) p++;
     		      while (p >= tmp && *p != '\\') p--;
               *++p=0;
@@ -1377,7 +1377,7 @@ BOOL WINAPI ProfilesProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM /*lParam
                 return 0;
               }
               char *p=tmp;
-		          GetModuleFileName(hMainInstance,tmp,sizeof(tmp));
+		          GetModuleFileName(hMainInstance,tmp,_countof(tmp));
 		          while (*p) p++;
     		      while (p >= tmp && *p != '\\') p--;
               *++p=0;
