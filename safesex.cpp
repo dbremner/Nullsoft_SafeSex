@@ -20,6 +20,7 @@
 
 */
 
+#include "stdafx.h"
 #include <windows.h>
 #include <windowsx.h>
 #include <richedit.h>

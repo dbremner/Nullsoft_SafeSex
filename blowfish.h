@@ -1,3 +1,4 @@
+#pragma once
 /*
  * based on Paul Kocher's blowfish as well as the original reference impl.
  * public domain

@@ -3,6 +3,7 @@
  * public domain
  */
 
+#include "stdafx.h"
 #include <windows.h>
 #include "blowfish.h"
 

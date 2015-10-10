@@ -1,3 +1,4 @@
+#pragma once
 /*
   Copyright (C) 1998-2002 Nullsoft, Inc.
 
@@ -17,9 +18,6 @@
      misrepresented as being the original software.
   3. This notice may not be removed or altered from any source distribution.
 */
-
-#ifndef _SHA_H_
-#define _SHA_H_
 
 
 #define SHA_OUTSIZE 20
@@ -42,4 +40,3 @@ private:
   unsigned long size[2];
 };
 
-#endif//_SHA_H_
