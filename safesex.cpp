@@ -550,7 +550,7 @@ BOOL WINAPI PasswdProc2(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM /*lParam*
     {
       char buf[1024],buf2[1024];
       memset(buf,0,sizeof(buf));
-      GetDlgItemText(hwndDlg,IDC_EDIT1,buf,_countof(buf)-1);
+      GetDlgItemText(hwndDlg,IDC_EDIT1,buf,_countof(buf));
       SHAify s;
       s.add((unsigned char *)buf,strlen(buf));
       memset(buf,0,sizeof(buf));
@@ -562,8 +562,8 @@ BOOL WINAPI PasswdProc2(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM /*lParam*
         MessageBox(hwndDlg,"Invalid old passphrase",APP_NAME,MB_OK);
         return 0;
       }
-      GetDlgItemText(hwndDlg,IDC_EDIT2,buf,_countof(buf)-1);
-      GetDlgItemText(hwndDlg,IDC_EDIT3,buf2,_countof(buf2)-1);
+      GetDlgItemText(hwndDlg,IDC_EDIT2,buf,_countof(buf));
+      GetDlgItemText(hwndDlg,IDC_EDIT3,buf2,_countof(buf2));
       if (strcmp(buf,buf2))
       {
         MessageBox(hwndDlg,"New passphrases do not match",APP_NAME,MB_OK);
@@ -906,8 +906,8 @@ BOOL WINAPI PasswdProc1_new(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM /*lPa
       char buf[1024];
       char buf2[1024];
       memset(buf,0,sizeof(buf));
-      GetDlgItemText(hwndDlg,IDC_EDIT2,buf,_countof(buf)-1);
-      GetDlgItemText(hwndDlg,IDC_EDIT3,buf2,_countof(buf2)-1);
+      GetDlgItemText(hwndDlg,IDC_EDIT2,buf,_countof(buf));
+      GetDlgItemText(hwndDlg,IDC_EDIT3,buf2,_countof(buf2));
       if (strcmp(buf,buf2))
       {
         MessageBox(hwndDlg,"New passphrases do not match",APP_NAME,MB_OK);
@@ -947,7 +947,7 @@ BOOL WINAPI PasswdProc1(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM /*lParam*
     {
       char buf[1024];
       memset(buf,0,sizeof(buf));
-      GetDlgItemText(hwndDlg,IDC_EDIT1,buf,_countof(buf)-1);
+      GetDlgItemText(hwndDlg,IDC_EDIT1,buf,_countof(buf));
       SHAify s;
       s.add((unsigned char *)buf,strlen(buf));
       memset(buf,0,sizeof(buf));
