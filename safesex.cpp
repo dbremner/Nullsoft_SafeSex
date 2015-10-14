@@ -92,7 +92,7 @@ static HMENU hmenu_main;
 static HWND hwnd_rich, hwnd_main;
 
 static HINSTANCE hMainInstance;
-BOOL WINAPI ProfilesProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam);
+INT_PTR WINAPI ProfilesProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
 static BOOL InitApplication(HINSTANCE hInstance);
 static BOOL InitInstance(HINSTANCE hInstance, int nCmdShow);
@@ -508,7 +508,7 @@ static UINT OnNCHitTest(HWND hwnd, int x, int y)
 	return HTCLIENT;
 }
 
-BOOL WINAPI TimeoutProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM /*lParam*/)
+INT_PTR WINAPI TimeoutProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM /*lParam*/)
 {
   if (uMsg == WM_INITDIALOG)
   {
@@ -538,7 +538,7 @@ BOOL WINAPI TimeoutProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM /*lParam*
   return 0;
 }
 
-BOOL WINAPI PasswdProc2(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM /*lParam*/)
+INT_PTR WINAPI PasswdProc2(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM /*lParam*/)
 {
   if (uMsg == WM_INITDIALOG)
   {
@@ -838,7 +838,7 @@ static void config_read()
 
 static HANDLE esFile;
 
-DWORD CALLBACK esCb(DWORD dwCookie, LPBYTE pbBuff, LONG cb, DWORD *pcb)
+DWORD CALLBACK esCb(DWORD_PTR dwCookie, LPBYTE pbBuff, LONG cb, DWORD *pcb)
 {
   if (cb > 8) cb &= ~7;
 	if (dwCookie == 1) // write
@@ -891,7 +891,7 @@ DWORD CALLBACK esCb(DWORD dwCookie, LPBYTE pbBuff, LONG cb, DWORD *pcb)
 	return 0;
 }
  
-BOOL WINAPI PasswdProc1_new(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM /*lParam*/)
+INT_PTR WINAPI PasswdProc1_new(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM /*lParam*/)
 {
   if (uMsg == WM_INITDIALOG)
   {
@@ -935,7 +935,7 @@ BOOL WINAPI PasswdProc1_new(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM /*lPa
   return 0;
 }
 
-BOOL WINAPI PasswdProc1(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM /*lParam*/)
+INT_PTR WINAPI PasswdProc1(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM /*lParam*/)
 {
   if (uMsg == WM_INITDIALOG)
   {
@@ -1192,7 +1192,7 @@ static void config_write()
 static int pep_mode; //copy,rename,create
 static char pep_n[128];
 
-static BOOL WINAPI ProfEditProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM /*lParam*/) 
+static INT_PTR WINAPI ProfEditProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM /*lParam*/) 
 {
   switch (uMsg)
   {
@@ -1215,7 +1215,7 @@ static BOOL WINAPI ProfEditProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM /
   return 0;
 }
 
-BOOL WINAPI ProfilesProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM /*lParam*/) 
+INT_PTR WINAPI ProfilesProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM /*lParam*/) 
 {
   switch (uMsg)
   {
