@@ -265,6 +265,29 @@ static BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 
 	return TRUE;
 }
+
+// If our name is C:\bin\safesex.exe -> C:\bin\ 
+auto GetModuleDirectory(void) -> CAtlString
+{
+	char tmp[MAX_PATH];
+	auto hinst = GetModuleHandle(nullptr);
+	GetModuleFileName(hinst, tmp, _countof(tmp));
+	CPathT<CAtlString> temp(tmp);
+	temp.RemoveFileSpec();
+	temp.AddBackslash();
+	return temp;
+}
+
+auto IsProfileInUse(CAtlString profilename) -> bool
+{
+	CAtlString window_name = "SafeSex_";
+	window_name += profilename;
+	if (FindWindow(window_name, NULL))
+		return true;
+	else
+		return false;
+}
+
 static WNDPROC Rich_OldWndProc;
 
 static BOOL OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct);
@@ -797,9 +820,9 @@ static int _r_i(char *name, int def)
 #define RI(x) (( x ) = _r_i(#x,( x )))
 static void _w_i(char *name, int d)
 {
-	char str[120];
-	StringCchPrintf(str, _countof(str), "%d",d);
-	WritePrivateProfileString(APP_NAME,name,str,ini_file);
+	CAtlString s;
+	s.Format("%d", d);
+	WritePrivateProfileString(APP_NAME,name,s,ini_file);
 }
 #define WI(x) _w_i(#x,( x ))
 
@@ -810,18 +833,17 @@ static void config_read()
 	char *p;
 	GetModuleFileName(hMainInstance,ini_file,_countof(ini_file));
 
-  exe_file[0]='\"';
-	strcpy(exe_file+1,ini_file);
-  StringCchCat(exe_file, _countof(exe_file), "\" /PROFILE=");
-  StringCchCat(exe_file, _countof(exe_file), profilename);
+  StringCchPrintf(exe_file, _countof(exe_file), R"("%s" /PROFILE=%s")",
+	  ini_file, profilename);
+  CPathT<CAtlString> exe_path(ini_file);
+  exe_path.RemoveFileSpec();
+  auto exe_dir = GetModuleDirectory();
+  exe_path += profilename;
+  PathRemoveFileSpec(ini_file);
+  PathAddBackslash(ini_file);
+  StringCchCat(ini_file, _countof(ini_file), profilename);
 
-
-	p=ini_file+strlen(ini_file);
-	while (p >= ini_file && *p != '\\') p--;
-  strcpy(++p,profilename);
-
-  StringCchCopy(text_file, _countof(text_file), ini_file);
-  StringCchCat(text_file, _countof(text_file), ".sex");
+  StringCchPrintf(text_file, _countof(text_file), "%s.sex", ini_file);
 
   StringCchCat(ini_file, _countof(ini_file), ".ini");
 
@@ -1229,31 +1251,19 @@ INT_PTR WINAPI ProfilesProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM /*lPa
         HANDLE h;
 
         int gotDefault=0;
-        char tmp[1024],*p=tmp;
-		    GetModuleFileName(hMainInstance,tmp,_countof(tmp));
-		    while (*p) p++;
-    		while (p >= tmp && *p != '\\') p--;
-        *++p=0;
-        StringCchCat(tmp, _countof(tmp), "*.sex");
-        h=FindFirstFile(tmp,&fd);
+        auto temp = GetModuleDirectory();
+		temp += "\\*.sex";
+		h=FindFirstFile(temp,&fd);
         if (h)
         {
           do
           {
             if (!(fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
             {
-              char *p=fd.cFileName;
-              while (*p) p++;
-              while (p >= fd.cFileName && *p != '.') p--;
-              if (p > fd.cFileName)
-              {
-                *p=0;
-                if (strlen(fd.cFileName) < _countof(profilename))
-                {
-                  SendMessage(hwndList,LB_ADDSTRING,0,(LPARAM)fd.cFileName);
-                  gotDefault=1;
-                }
-              }
+			  CPathT<CAtlString> profile{fd.cFileName};
+			  profile.RemoveExtension();
+			  SendMessage(hwndList,LB_ADDSTRING,0,(LPARAM)(LPCSTR)profile);
+              gotDefault=1;
             }
           }
           while (FindNextFile(h,&fd));
@@ -1279,41 +1289,32 @@ INT_PTR WINAPI ProfilesProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM /*lPa
             {
               pep_mode=LOWORD(wParam) == IDC_RENAME;
               SendDlgItemMessage(hwndDlg,IDC_LIST1,LB_GETTEXT,(WPARAM)l,(LPARAM)pep_n);
-              char oldfn[1024+1024];
-              char *p=oldfn;
-		          GetModuleFileName(hMainInstance,oldfn,_countof(oldfn));
-		          while (*p) p++;
-    		      while (p >= oldfn && *p != '\\') p--;
-              *++p=0;
-              StringCchCat(oldfn, _countof(oldfn), pep_n);
-              StringCchCat(oldfn, _countof(oldfn), ".sex");
-
+              CPathT<CAtlString> oldfn = GetModuleDirectory();
+			  oldfn += pep_n;
+			  oldfn += ".sex";
               if (!DialogBox(hMainInstance,MAKEINTRESOURCE(IDD_PROFILE_MOD),hwndDlg,ProfEditProc) && pep_n[0])
               {
                 char tmp[1024+1024];
-                StringCchCopy(tmp, _countof(tmp), "SafeSex_");
-				StringCchCat(tmp, _countof(tmp), pep_n);
-	              if (FindWindow(tmp,NULL)) 
+				CAtlString window_name = "SafeSex_";
+				window_name += pep_n;
+				if (IsProfileInUse(window_name)) 
                 {
                   MessageBox(hwndDlg,"Can't copy or rename profile of that name, currently running",APP_NAME " Error",MB_OK|MB_ICONEXCLAMATION);
                   return 0;
                 }
-                char *p=tmp;
-		            GetModuleFileName(hMainInstance,tmp,_countof(tmp));
-		            while (*p) p++;
-    		        while (p >= tmp && *p != '\\') p--;
-                *++p=0;
-				StringCchCat(tmp, _countof(tmp), pep_n);
-				StringCchCat(tmp, _countof(tmp), ".sex");
-                if (_stricmp(tmp,oldfn))
+				CPathT<CAtlString> temp = GetModuleDirectory();
+                temp += pep_n;
+				temp += ".sex";
+				
+		        if (_stricmp(temp, oldfn)) // FIXME yes, this is evil.
                 {
                   BOOL ret;
-                  if (LOWORD(wParam) == IDC_RENAME) ret=MoveFile(oldfn,tmp);
-                  else ret=CopyFile(oldfn,tmp,TRUE);
+                  if (LOWORD(wParam) == IDC_RENAME) ret=MoveFile(oldfn,temp);
+                  else ret=CopyFile(oldfn,temp,TRUE);
                   if (ret)
                   {
-                    strcpy(tmp+strlen(tmp)-3,"ini");
-                    strcpy(oldfn+strlen(oldfn)-3,"ini");
+                    temp.RenameExtension(".ini");
+					oldfn.RenameExtension(".ini");
 
                     if (LOWORD(wParam) == IDC_RENAME) MoveFile(oldfn,tmp);
                     else CopyFile(oldfn,tmp,FALSE);
@@ -1336,23 +1337,18 @@ INT_PTR WINAPI ProfilesProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM /*lPa
             StringCchCopy(pep_n, _countof(pep_n), "NULL");
             if (!DialogBox(hMainInstance,MAKEINTRESOURCE(IDD_PROFILE_MOD),hwndDlg,ProfEditProc) && pep_n[0])
             {
-              char tmp[1024+1024];
-			  StringCchCopy(tmp, _countof(tmp), "SafeSex_");
-			  StringCchCat(tmp, _countof(tmp), pep_n);
-	            if (FindWindow(tmp,NULL)) 
+              CAtlString window_name = "SafeSex_";
+			  window_name += pep_n;
+	          if (IsProfileInUse(window_name)) 
               {
                 MessageBox(hwndDlg,"Can't create profile of that name, already running",APP_NAME " Error",MB_OK|MB_ICONEXCLAMATION);
                 return 0;
               }
 
-              char *p=tmp;
-		          GetModuleFileName(hMainInstance,tmp,_countof(tmp));
-		          while (*p) p++;
-    		      while (p >= tmp && *p != '\\') p--;
-              *++p=0;
-			  StringCchCat(tmp, _countof(tmp), pep_n);
-			  StringCchCat(tmp, _countof(tmp), ".sex");
-              HANDLE h=CreateFile(tmp,0,0,NULL,CREATE_NEW,0,NULL);
+			  auto temp = GetModuleDirectory();
+			  temp += pep_n;
+			  temp += ".sex";
+			  HANDLE h=CreateFile(temp,0,0,NULL,CREATE_NEW,0,NULL);
               if (h != INVALID_HANDLE_VALUE)
               {
                 CloseHandle(h);
@@ -1376,17 +1372,16 @@ INT_PTR WINAPI ProfilesProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM /*lPa
                 MessageBox(hwndDlg,"Can't delete profile of that name, currently running",APP_NAME " Error",MB_OK|MB_ICONEXCLAMATION);
                 return 0;
               }
-              char *p=tmp;
-		          GetModuleFileName(hMainInstance,tmp,_countof(tmp));
-		          while (*p) p++;
-    		      while (p >= tmp && *p != '\\') p--;
-              *++p=0;
+              GetModuleFileName(hMainInstance,tmp,_countof(tmp));
+			  PathRemoveFileSpec(tmp);
+              PathAddBackslash(tmp);
               SendDlgItemMessage(hwndDlg,IDC_LIST1,LB_GETTEXT,(WPARAM)l,(LPARAM)(tmp+strlen(tmp)));
-			  StringCchCat(tmp, _countof(tmp), ".sex");
-              if (DeleteFile(tmp))
+			  CPathT<CAtlString> s{tmp};
+			  s += ".sex";
+			  if (DeleteFile(s))
               {
-                strcpy(tmp+strlen(tmp)-3,"ini");
-                DeleteFile(tmp);
+                s.RenameExtension(".ini");
+				DeleteFile(s);
                 SendDlgItemMessage(hwndDlg,IDC_LIST1,LB_DELETESTRING,(WPARAM)l,0);
               }
               else MessageBox(hwndDlg,"Error deleting profile",APP_NAME " Error",MB_OK|MB_ICONEXCLAMATION);              
