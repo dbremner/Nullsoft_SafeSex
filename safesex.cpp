@@ -122,7 +122,7 @@ int WINAPI WinMain(HINSTANCE hInstance,
 
       if (!_strnicmp(lpCmdLine,"/PROFILE=",9))
       {
-        lstrcpyn(profilename,lpCmdLine+9,_countof(profilename));
+        StringCchCopy(profilename,_countof(profilename),lpCmdLine+9);
         break;
       }
       lpCmdLine++;
@@ -159,7 +159,7 @@ int WINAPI WinMain(HINSTANCE hInstance,
 		if (p > b) *p = 0;
 		while (p >= b && *p != '\\') p--;
     if (p >= b) *p=0;
-    lstrcpyn(profilename,++p,_countof(profilename));
+	StringCchCopy(profilename, _countof(profilename), ++p);
 
     if (!DialogBox(hInstance,MAKEINTRESOURCE(IDD_PROFILES),GetDesktopWindow(),ProfilesProc))
       return 0;
