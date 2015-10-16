@@ -1273,7 +1273,7 @@ INT_PTR WINAPI ProfilesProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM /*lPa
         {
           SendMessage(hwndList,LB_ADDSTRING,0,(LPARAM)profilename);
         }
-        int l=SendMessage(hwndList,LB_FINDSTRINGEXACT,(WPARAM)-1,(LPARAM)profilename);
+        LRESULT l=SendMessage(hwndList,LB_FINDSTRINGEXACT,(WPARAM)-1,(LPARAM)profilename);
         if (l == LB_ERR) l=0;
         SendMessage(hwndList,LB_SETCURSEL,(WPARAM)l,0);
       }
@@ -1284,7 +1284,7 @@ INT_PTR WINAPI ProfilesProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM /*lPa
         case IDC_RENAME:
         case IDC_CLONE:
           {
-            int l=SendDlgItemMessage(hwndDlg,IDC_LIST1,LB_GETCURSEL,0,0);
+            LRESULT l=SendDlgItemMessage(hwndDlg,IDC_LIST1,LB_GETCURSEL,0,0);
             if (l != LB_ERR)
             {
               pep_mode=LOWORD(wParam) == IDC_RENAME;
@@ -1352,7 +1352,7 @@ INT_PTR WINAPI ProfilesProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM /*lPa
               if (h != INVALID_HANDLE_VALUE)
               {
                 CloseHandle(h);
-                int l=SendDlgItemMessage(hwndDlg,IDC_LIST1,LB_ADDSTRING,0,(LPARAM)pep_n);
+                LRESULT l=SendDlgItemMessage(hwndDlg,IDC_LIST1,LB_ADDSTRING,0,(LPARAM)pep_n);
                 SendDlgItemMessage(hwndDlg,IDC_LIST1,LB_SETCURSEL,(WPARAM)l,0);
               }
               else MessageBox(hwndDlg,"Error creating profile",APP_NAME " Error",MB_OK|MB_ICONEXCLAMATION);
@@ -1361,7 +1361,7 @@ INT_PTR WINAPI ProfilesProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM /*lPa
         return 0;
         case IDC_DELETE:
           {
-            int l=SendDlgItemMessage(hwndDlg,IDC_LIST1,LB_GETCURSEL,0,0);
+            LRESULT l=SendDlgItemMessage(hwndDlg,IDC_LIST1,LB_GETCURSEL,0,0);
             if (l != LB_ERR)
             {
               char tmp[1024+1024];
@@ -1392,7 +1392,7 @@ INT_PTR WINAPI ProfilesProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM /*lPa
           if (HIWORD(wParam) != LBN_DBLCLK) return 0;
         case IDOK:
           {
-            int l=SendDlgItemMessage(hwndDlg,IDC_LIST1,LB_GETCURSEL,0,0);
+            LRESULT l=SendDlgItemMessage(hwndDlg,IDC_LIST1,LB_GETCURSEL,0,0);
             if (l != LB_ERR)
             {
               SendDlgItemMessage(hwndDlg,IDC_LIST1,LB_GETTEXT,(WPARAM)l,(LPARAM)profilename);
@@ -1402,7 +1402,7 @@ INT_PTR WINAPI ProfilesProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM /*lPa
         return 0;
         case IDCANCEL: 
           {
-            int l=SendDlgItemMessage(hwndDlg,IDC_LIST1,LB_GETCURSEL,0,0);
+            LRESULT l=SendDlgItemMessage(hwndDlg,IDC_LIST1,LB_GETCURSEL,0,0);
             if (l != LB_ERR)
             {
               SendDlgItemMessage(hwndDlg,IDC_LIST1,LB_GETTEXT,(WPARAM)l,(LPARAM)profilename);
