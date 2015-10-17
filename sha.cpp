@@ -40,9 +40,7 @@ void SHAify::reset()
   memset(W,0,sizeof(W));
 }
 
-
-#define SHA_ROTL(X,n) (((X) << (n)) | ((X) >> (32-(n))))
-#define SHUFFLE() E = D; D = C; C = SHA_ROTL(B, 30); B = A; A = TEMP
+#define SHUFFLE() E = D; D = C; C = _rotl(B, 30); B = A; A = TEMP
 
 void SHAify::add(unsigned char *data, int datalen)
 {
@@ -62,26 +60,26 @@ void SHAify::add(unsigned char *data, int datalen)
       unsigned long E = H[4];
 
 
-      for (t = 16; t < 80; t++) W[t] = SHA_ROTL(W[t-3] ^ W[t-8] ^ W[t-14] ^ W[t-16], 1);
+      for (t = 16; t < 80; t++) W[t] = _rotl(W[t-3] ^ W[t-8] ^ W[t-14] ^ W[t-16], 1);
 
       for (t = 0; t < 20; t++) 
       {
-        unsigned long TEMP = SHA_ROTL(A,5) + E + W[t] + 0x5a827999L + (((C^D)&B)^D);
+        unsigned long TEMP = _rotl(A,5) + E + W[t] + 0x5a827999L + (((C^D)&B)^D);
         SHUFFLE();
       }
       for (; t < 40; t++) 
       {
-        unsigned long TEMP = SHA_ROTL(A,5) + E + W[t] + 0x6ed9eba1L + (B^C^D);
+        unsigned long TEMP = _rotl(A,5) + E + W[t] + 0x6ed9eba1L + (B^C^D);
         SHUFFLE();
       }
       for (; t < 60; t++) 
       {
-        unsigned long TEMP = SHA_ROTL(A,5) + E + W[t] + 0x8f1bbcdcL + ((B&C)|(D&(B|C)));
+        unsigned long TEMP = _rotl(A,5) + E + W[t] + 0x8f1bbcdcL + ((B&C)|(D&(B|C)));
         SHUFFLE();
       }
       for (; t < 80; t++) 
       {
-        unsigned long TEMP = SHA_ROTL(A,5) + E + W[t] + 0xca62c1d6L + (B^C^D);
+        unsigned long TEMP = _rotl(A,5) + E + W[t] + 0xca62c1d6L + (B^C^D);
         SHUFFLE();
       }
 
