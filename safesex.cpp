@@ -213,10 +213,9 @@ static void set_inactive(HWND hwnd)
 		{			
 			int xm=0,ym=0;
 			g_active=0;
-      HDC hdc=GetDC(hwnd);
+      CClientDC hdc(hwnd);
       RECT textr={0,};
       DrawText(hdc,app_name+8,-1,&textr,DT_CENTER|DT_SINGLELINE|DT_CALCRECT);
-      ReleaseDC(hwnd,hdc);
 			if ((r.top+r.bottom)/2 >= (vpr.bottom+vpr.top)/2) ym=1;
 			if ((r.left+r.right)/2 >= (vpr.right+vpr.left)/2) xm=1;
 
@@ -456,7 +455,7 @@ static void OnLButtonDown(HWND hwnd, BOOL /*fDoubleClick*/, int /*x*/, int /*y*/
 static BOOL OnCreate(HWND hwnd, LPCREATESTRUCT /*lpCreateStruct*/)
 {
 	hwnd_main=hwnd;
-	hmenu_main=LoadMenu(hMainInstance,MAKEINTRESOURCE(IDR_MENU1));
+	hmenu_main=AtlLoadMenu(IDR_MENU1);
 	hmenu_main=GetSubMenu(hmenu_main,0);
   {
     HKEY key;
@@ -507,9 +506,8 @@ static void OnClose(HWND hwnd)
 
 static UINT OnNCHitTest(HWND hwnd, int x, int y)
 {
-	POINT p;
+	CPoint p(x, y);
 	RECT r;
-	p.x=x;p.y=y;
 	GetClientRect(hwnd,&r);
 	ScreenToClient(hwnd,&p);
 	if (g_active)
@@ -782,13 +780,11 @@ static void OnMove(HWND /*hwnd*/, int /*x*/, int /*y*/)
 
 static void OnPaint(HWND hwnd)
 {
-	PAINTSTRUCT ps;
-	HDC hdc;
 	HBRUSH hBrush;
 	HPEN hPen;
   HGDIOBJ hOldPen,hOldBrush;
 	RECT r;
-	hdc = BeginPaint(hwnd,&ps);
+	CPaintDC hdc{hwnd};
 	GetClientRect(hwnd,&r);
 
 	hPen=CreatePen(PS_SOLID,0,config_bcolor2);
@@ -809,7 +805,6 @@ static void OnPaint(HWND hwnd)
 	SelectObject(hdc,hOldBrush);
 	DeleteObject(hPen);
 	DeleteObject(hBrush);
-	EndPaint(hwnd,&ps);
 }
 
 
