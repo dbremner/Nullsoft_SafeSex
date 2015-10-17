@@ -824,9 +824,7 @@ static void _w_i(char *name, int d)
 
 static void config_read()
 {
-	char *p;
-	GetModuleFileName(hMainInstance,ini_file,_countof(ini_file));
-
+  GetModuleFileName(hMainInstance,ini_file,_countof(ini_file));
   StringCchPrintf(exe_file, _countof(exe_file), R"("%s" /PROFILE=%s")",
 	  ini_file, profilename);
   CPathT<CAtlString> exe_path(ini_file);
