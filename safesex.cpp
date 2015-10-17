@@ -57,7 +57,7 @@ static unsigned char g_shakey[20];
 
 static unsigned char g_bf_cbc[8];
 static BLOWFISH_CTX g_bf;
-#define CLEAR_BF { memset(&g_bf,0,sizeof(g_bf)); memset(g_bf_cbc,0,sizeof(g_bf_cbc)); }
+#define CLEAR_BF { SecureZeroMemory(&g_bf,sizeof(g_bf)); SecureZeroMemory(g_bf_cbc,sizeof(g_bf_cbc)); }
 
 static int g_text_dirty;
 
@@ -572,11 +572,11 @@ INT_PTR WINAPI PasswdProc2(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM /*lPar
     if (LOWORD(wParam) == IDOK)
     {
       char buf[1024],buf2[1024];
-      memset(buf,0,sizeof(buf));
+      SecureZeroMemory(buf,sizeof(buf));
       GetDlgItemText(hwndDlg,IDC_EDIT1,buf,_countof(buf));
       SHAify s;
       s.add((unsigned char *)buf,strlen(buf));
-      memset(buf,0,sizeof(buf));
+	  SecureZeroMemory(buf,sizeof(buf));
       unsigned char b[20];
       s.final(b);
       s.reset();
@@ -593,7 +593,7 @@ INT_PTR WINAPI PasswdProc2(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM /*lPar
         return 0;
       }
       s.add((unsigned char *)buf,strlen(buf));
-      memset(buf,0,sizeof(buf));
+	  SecureZeroMemory(buf,sizeof(buf));
       s.final(g_shakey);
       s.reset();
       g_text_dirty=1;
@@ -676,7 +676,7 @@ static void OnCommand(HWND hwnd, int id, HWND /*hwndCtl*/, UINT /*codeNotify*/)
         set_inactive(hwnd);
 
         g_keyvalid=0;
-        memset(g_shakey,0,sizeof(g_shakey));
+		SecureZeroMemory(g_shakey,sizeof(g_shakey));
       }
     return;
 		case IDM_ABOUT:
@@ -893,7 +893,7 @@ DWORD CALLBACK esCb(DWORD_PTR dwCookie, LPBYTE pbBuff, LONG cb, DWORD *pcb)
 	{
     char buf[8*128];
     if (cb > sizeof(buf)) cb=sizeof(buf);
-    memset(buf,0,sizeof(buf));
+    SecureZeroMemory(buf,sizeof(buf));
 		if (!ReadFile(esFile,buf,cb,pcb,NULL)) return 0;
 
     DWORD a;
@@ -927,7 +927,8 @@ INT_PTR WINAPI PasswdProc1_new(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM /*
     {
       char buf[1024];
       char buf2[1024];
-      memset(buf,0,sizeof(buf));
+	  SecureZeroMemory(buf,sizeof(buf));
+      SecureZeroMemory(buf2,sizeof(buf2));
       GetDlgItemText(hwndDlg,IDC_EDIT2,buf,_countof(buf));
       GetDlgItemText(hwndDlg,IDC_EDIT3,buf2,_countof(buf2));
       if (strcmp(buf,buf2))
@@ -937,8 +938,8 @@ INT_PTR WINAPI PasswdProc1_new(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM /*
       }
       SHAify s;
       s.add((unsigned char *)buf,strlen(buf));
-      memset(buf,0,sizeof(buf));
-      memset(buf2,0,sizeof(buf2));
+      SecureZeroMemory(buf,sizeof(buf));
+      SecureZeroMemory(buf2,sizeof(buf2));
       s.final(g_shakey);
       s.reset();
       g_keyvalid=1;
@@ -968,11 +969,11 @@ INT_PTR WINAPI PasswdProc1(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM /*lPar
     if (LOWORD(wParam) == IDOK)
     {
       char buf[1024];
-      memset(buf,0,sizeof(buf));
+      SecureZeroMemory(buf,sizeof(buf));
       GetDlgItemText(hwndDlg,IDC_EDIT1,buf,_countof(buf));
       SHAify s;
       s.add((unsigned char *)buf,strlen(buf));
-      memset(buf,0,sizeof(buf));
+	  SecureZeroMemory(buf, sizeof(buf));
       s.final(g_shakey);
       s.reset();
       g_keyvalid=1;
@@ -1158,7 +1159,7 @@ again:
       for (x = 0; x < 8; x ++) g_bf_cbc[x]^=buf[x];
       WriteFile(esFile,buf,8,&d,NULL);
 
-      memset(buf,0,8);
+	  SecureZeroMemory(buf, 8);
       memcpy(buf,&file_timeout,4);
       for (x = 0; x < 8; x ++) buf[x]^=g_bf_cbc[x];
       Blowfish_Encrypt(&g_bf,(unsigned long *)buf,(unsigned long *)(buf+4));
