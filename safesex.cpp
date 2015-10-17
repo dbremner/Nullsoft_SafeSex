@@ -167,8 +167,7 @@ int WINAPI WinMain(HINSTANCE hInstance,
 
 	MSG msg;
 	HACCEL hAccel;
-  StringCchCopy(app_name, _countof(app_name), "SafeSex_");
-	lstrcpyn(app_name+8,profilename,_countof(app_name)-8);
+  StringCchPrintf(app_name, _countof(app_name), "SafeSex_%s", profilename);
 	
 	if (FindWindow(app_name,NULL)) return 0;
 
