@@ -987,8 +987,8 @@ INT_PTR WINAPI PasswdProc1(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM /*lPar
 int GetPasswordFromUser(int ispass) // 1 on cancel, 2 on close
 {
   if (!ispass)
-    return DialogBox(hMainInstance,MAKEINTRESOURCE(IDD_DIALOG2),hwnd_main,PasswdProc1_new);
-  return DialogBox(hMainInstance,MAKEINTRESOURCE(IDD_DIALOG1),hwnd_main,PasswdProc1);
+    return static_cast<int>(DialogBox(hMainInstance,MAKEINTRESOURCE(IDD_DIALOG2),hwnd_main,PasswdProc1_new));
+  return static_cast<int>(DialogBox(hMainInstance,MAKEINTRESOURCE(IDD_DIALOG1),hwnd_main,PasswdProc1));
 }
 
 static int read_text()
