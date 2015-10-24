@@ -172,17 +172,17 @@ int WINAPI WinMain(HINSTANCE hInstance,
 	if (FindWindow(app_name,NULL)) return 0;
 
 	hMainInstance=hInstance;
-	hAccel = LoadAccelerators(hMainInstance,MAKEINTRESOURCE(IDR_ACCELERATOR1));
+	hAccel = LoadAccelerators(hInstance,MAKEINTRESOURCE(IDR_ACCELERATOR1));
 
   config_read();
 
-	if (!InitApplication(hMainInstance)) 
+	if (!InitApplication(hInstance)) 
 	{
 		MessageBox(NULL, "Could not initialize application", NULL, MB_OK);
 		return (FALSE);
 	}
 
-	if (!InitInstance(hMainInstance, SW_SHOWNA)) 
+	if (!InitInstance(hInstance, SW_SHOWNA))
 	{
 		MessageBox(NULL, "Could not create window", NULL, MB_OK);
 		return (FALSE);
@@ -611,14 +611,14 @@ INT_PTR WINAPI PasswdProc2(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM /*lPar
 
 static void OnCommand(HWND hwnd, int id, HWND /*hwndCtl*/, UINT /*codeNotify*/)
 {
-	COLORREF *c=NULL;
+	COLORREF *c=nullptr;
 	switch (id)
 	{
     case ID_CHPASS:
       if (g_keyvalid)
       {
         g_noclose++;
-        DialogBox(hMainInstance,MAKEINTRESOURCE(IDD_DIALOG2),hwnd_main,PasswdProc2);
+        DialogBox(GetModuleHandle(nullptr),MAKEINTRESOURCE(IDD_DIALOG2),hwnd_main,PasswdProc2);
         g_noclose--;
       }
     return;
@@ -626,7 +626,7 @@ static void OnCommand(HWND hwnd, int id, HWND /*hwndCtl*/, UINT /*codeNotify*/)
       if (g_keyvalid)
       {
         g_noclose++;
-        DialogBox(hMainInstance,MAKEINTRESOURCE(IDD_DIALOG3),hwnd_main,TimeoutProc);
+        DialogBox(GetModuleHandle(nullptr),MAKEINTRESOURCE(IDD_DIALOG3),hwnd_main,TimeoutProc);
         g_noclose--;
       }
     return;
@@ -647,7 +647,7 @@ static void OnCommand(HWND hwnd, int id, HWND /*hwndCtl*/, UINT /*codeNotify*/)
           set_inactive(hwnd);
         }
         char buf[1024];
-        GetModuleFileName(hMainInstance,buf,_countof(buf));
+		GetModuleFileName(GetModuleHandle(nullptr), buf, _countof(buf));
         ShellExecute(hwnd,"open",buf,"",".",SW_SHOW);
       }
     return;
