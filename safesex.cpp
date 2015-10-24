@@ -204,21 +204,22 @@ int WINAPI WinMain(HINSTANCE hInstance,
 
 static void set_inactive(HWND hwnd)
 {
+	CWindow wnd{hwnd};
 	if (g_active)
 	{
-		RECT r,vpr;
-		GetWindowRect(hwnd,&r);
+		CRect r,vpr;
+		wnd.GetWindowRect(&r);
 		SystemParametersInfo(SPI_GETWORKAREA, 0, &vpr, 0);
 		{			
 			int xm=0,ym=0;
 			g_active=0;
-      CClientDC hdc(hwnd);
-      RECT textr={0,};
-      DrawText(hdc,app_name+8,-1,&textr,DT_CENTER|DT_SINGLELINE|DT_CALCRECT);
+			CClientDC hdc(hwnd);
+			CRect textr;
+			hdc.DrawText(app_name+8,-1,&textr,DT_CENTER|DT_SINGLELINE|DT_CALCRECT);
 			if ((r.top+r.bottom)/2 >= (vpr.bottom+vpr.top)/2) ym=1;
 			if ((r.left+r.right)/2 >= (vpr.right+vpr.left)/2) xm=1;
 
-			SetWindowPos(hwnd,0,xm?r.right-(textr.right-textr.left+10):r.left,ym?r.bottom-(textr.bottom-textr.top+5):r.top,(textr.right-textr.left)+10,textr.bottom-textr.top+5,SWP_NOZORDER|SWP_NOACTIVATE);		
+			wnd.SetWindowPos(nullptr,xm?r.right-(textr.right-textr.left+10):r.left,ym?r.bottom-(textr.bottom-textr.top+5):r.top,(textr.right-textr.left)+10,textr.bottom-textr.top+5,SWP_NOZORDER|SWP_NOACTIVATE);		
 			config_w=r.right-r.left;
 			config_h=r.bottom-r.top;
 			config_x=r.left;
@@ -322,15 +323,15 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
          if(el->msg==WM_LBUTTONUP) 
          {
            char tmp[1024];
-           HWND h=l->hwndFrom;
+           CWindow h{l->hwndFrom};
            CHARRANGE c;
-           SendMessage(h,EM_EXGETSEL,0,(LPARAM)&c);
+           h.SendMessage(EM_EXGETSEL,0,(LPARAM)&c);
            if (c.cpMin == c.cpMax && c.cpMax-c.cpMin < _countof(tmp)-4)
            {
              TEXTRANGE r;
              r.chrg=el->chrg;
              r.lpstrText=tmp;
-             SendMessage(h,EM_GETTEXTRANGE,0,(LPARAM)&r);
+             h.SendMessage(EM_GETTEXTRANGE,0,(LPARAM)&r);
              ShellExecute(NULL,"open",tmp,NULL,".",0);
            }
          }
@@ -351,10 +352,11 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
         {
           if (--g_active_cnt < 0)
           {
-            RECT r;
-            POINT p;
-            GetWindowRect(hwnd,&r);
-            GetCursorPos(&p);
+			CWindow wnd{hwnd};
+            CRect r;
+            wnd.GetWindowRect(&r);
+			CPoint p;
+			GetCursorPos(&p);
             if (p.x<r.left-32 || p.x>r.right+32 || p.y<r.top-32 || p.y>r.bottom+32)
             {
               if (!(GetAsyncKeyState(MK_LBUTTON)&0x8000)&&!(GetAsyncKeyState(MK_RBUTTON)&0x8000))
@@ -399,7 +401,7 @@ LRESULT CALLBACK Rich_WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam
   }
 	if (uMsg==WM_RBUTTONUP)
 	{
-		POINT p;
+		CPoint p;
 		GetCursorPos(&p);
     g_noclose++;
     CheckMenuItem(hmenu_main,ID_AOT,config_aot?MF_CHECKED:MF_UNCHECKED);
@@ -505,10 +507,11 @@ static void OnClose(HWND hwnd)
 
 static UINT OnNCHitTest(HWND hwnd, int x, int y)
 {
+	CWindow wnd{ hwnd };
+	CRect r;
+	wnd.GetClientRect(&r);
 	CPoint p(x, y);
-	RECT r;
-	GetClientRect(hwnd,&r);
-	ScreenToClient(hwnd,&p);
+	wnd.ScreenToClient(&p);
 	if (g_active)
 	{
 		if (p.x <= config_border && p.y <= config_border*5) return HTTOPLEFT;
@@ -783,8 +786,9 @@ static void OnPaint(HWND hwnd)
 	HPEN hPen;
   HGDIOBJ hOldPen,hOldBrush;
 	RECT r;
+	CWindow wnd;
 	CPaintDC hdc{hwnd};
-	GetClientRect(hwnd,&r);
+	wnd.GetClientRect(&r);
 
 	hPen=CreatePen(PS_SOLID,0,config_bcolor2);
 	{
@@ -792,14 +796,14 @@ static void OnPaint(HWND hwnd)
 		lb.lbColor=config_bcolor1;
 		hBrush=CreateBrushIndirect(&lb); 
 	}
-	SetTextColor(hdc,config_bcolor2);
-	SetBkColor(hdc,config_bcolor1);
+	hdc.SetTextColor(config_bcolor2);
+	hdc.SetBkColor(config_bcolor1);
 
 	hOldPen=SelectObject(hdc,hPen);
 	hOldBrush=SelectObject(hdc,hBrush);
 	Rectangle(hdc,r.left,r.top,r.right,r.bottom);
 	r.top++;
-	DrawText(hdc,app_name+8,-1,&r,DT_CENTER|DT_SINGLELINE|(g_active?DT_TOP:DT_VCENTER));
+	hdc.DrawText(app_name+8,-1,&r,DT_CENTER|DT_SINGLELINE|(g_active?DT_TOP:DT_VCENTER));
 	SelectObject(hdc,hOldPen);
 	SelectObject(hdc,hOldBrush);
 	DeleteObject(hPen);
