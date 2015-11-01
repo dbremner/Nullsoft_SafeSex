@@ -21,6 +21,7 @@
 #include <shlwapi.h>
 #include <atlpath.h>
 #include <atlapp.h>
+#include <atlctrls.h>
 #include <atlgdi.h>
 #include <atlmisc.h>
 #pragma warning (default:4365)

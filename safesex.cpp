@@ -172,7 +172,7 @@ int WINAPI WinMain(HINSTANCE hInstance,
 	if (FindWindow(app_name,NULL)) return 0;
 
 	hMainInstance=hInstance;
-	hAccel = LoadAccelerators(hInstance,MAKEINTRESOURCE(IDR_ACCELERATOR1));
+	hAccel = AtlLoadAccelerators(IDR_ACCELERATOR1);
 
   config_read();
 
@@ -419,11 +419,12 @@ static void OnGetMinMaxInfo(HWND /*hwnd*/, LPMINMAXINFO lpMinMaxInfo)
 
 static void OnLButtonDown(HWND hwnd, BOOL /*fDoubleClick*/, int /*x*/, int /*y*/, UINT /*keyFlags*/)
 {
+	CWindow wnd{hwnd};
 	if (!g_active)
 	{
     g_active_cnt=5;
 		  g_active=1;
-		  SetWindowPos(hwnd,0,config_x,config_y,config_w,config_h,SWP_NOZORDER|SWP_NOACTIVATE);
+		  wnd.SetWindowPos(0,config_x,config_y,config_w,config_h,SWP_NOZORDER|SWP_NOACTIVATE);
 		  ShowWindow(hwnd_rich,SW_SHOWNA);
 		SetForegroundWindow(hwnd_rich);
 
@@ -431,22 +432,23 @@ static void OnLButtonDown(HWND hwnd, BOOL /*fDoubleClick*/, int /*x*/, int /*y*/
 		  WS_CHILD|WS_VISIBLE|ES_MULTILINE|ES_AUTOVSCROLL|ES_AUTOHSCROLL|WS_HSCROLL|WS_VSCROLL,
 		  config_border,config_border*3+3,config_w-config_border*2,config_h-config_border*4-3,
 		  hwnd, NULL,hMainInstance,NULL);
-    SendMessage(hwnd_rich, EM_SETEVENTMASK, 0, ENM_LINK);
-    SendMessage(hwnd_rich, EM_AUTOURLDETECT, 1, 0);
-	  Rich_OldWndProc = (WNDPROC) SetWindowLongPtr(hwnd_rich,GWLP_WNDPROC,(LONG_PTR)Rich_WndProc);
-	  SendMessage(hwnd_rich,EM_SETBKGNDCOLOR,FALSE,(LPARAM)config_color);
+	CWindow wnd_rich{hwnd_rich};
+    wnd_rich.SendMessage(EM_SETEVENTMASK, 0, ENM_LINK);
+	wnd_rich.SendMessage(EM_AUTOURLDETECT, 1, 0);
+	  Rich_OldWndProc = (WNDPROC) wnd_rich.SetWindowLongPtr(GWLP_WNDPROC,(LONG_PTR)Rich_WndProc);
+	  wnd_rich.SendMessage(EM_SETBKGNDCOLOR, FALSE, (LPARAM)config_color);
     int a;
     g_noclose++;
 	a = read_text();
 	  if (a)
     {
-	    SetWindowLongPtr(hwnd_rich,GWLP_WNDPROC,(LONG_PTR)Rich_OldWndProc);
-      DestroyWindow(hwnd_rich);
+		wnd_rich.SetWindowLongPtr(GWLP_WNDPROC, (LONG_PTR)Rich_OldWndProc);
+      wnd_rich.DestroyWindow();
       hwnd_rich=0;
       set_inactive(hwnd);      
       if (a==2) 
       {
-        SendMessage(hwnd,WM_CLOSE,0,0);
+        wnd.SendMessage(WM_CLOSE,0,0);
       }
     }
     g_noclose--;
@@ -466,10 +468,11 @@ static BOOL OnCreate(HWND hwnd, LPCREATESTRUCT /*lpCreateStruct*/)
       RegCloseKey(key);
     }
   }
-	SetWindowLong(hwnd,GWL_STYLE,GetWindowLong(hwnd,GWL_STYLE)&~(WS_CAPTION));
-	SetWindowPos(hwnd, 0, 0,0, 0,0, SWP_NOMOVE|SWP_NOSIZE|SWP_NOZORDER|SWP_DRAWFRAME|SWP_NOACTIVATE);
-	SetWindowPos(hwnd, 0, config_x, config_y, config_w, config_h, SWP_NOACTIVATE|SWP_NOZORDER);
-  SetTimer(hwnd,23,500,NULL);
+    CWindow wnd{hwnd};
+	wnd.ModifyStyle(WS_CAPTION, 0);
+	wnd.SetWindowPos(0, 0,0, 0,0, SWP_NOMOVE|SWP_NOSIZE|SWP_NOZORDER|SWP_DRAWFRAME|SWP_NOACTIVATE);
+	wnd.SetWindowPos(0, config_x, config_y, config_w, config_h, SWP_NOACTIVATE|SWP_NOZORDER);
+    wnd.SetTimer(23,500,NULL);
 	g_active=1;
 	set_inactive(hwnd_main);
   if (g_mode != MODE_NORMAL)
@@ -533,9 +536,10 @@ static UINT OnNCHitTest(HWND hwnd, int x, int y)
 
 INT_PTR WINAPI TimeoutProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM /*lParam*/)
 {
+  CWindow wndDlg(hwndDlg);
   if (uMsg == WM_INITDIALOG)
   {
-    SetDlgItemInt(hwndDlg,IDC_EDIT1,file_timeout/1000,FALSE);
+    wndDlg.SetDlgItemInt(IDC_EDIT1,file_timeout/1000,FALSE);
     return 1;
   }
   if (uMsg == WM_COMMAND)
@@ -543,7 +547,7 @@ INT_PTR WINAPI TimeoutProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM /*lPar
     if (LOWORD(wParam) == IDOK)
     {
       BOOL b;
-      file_timeout=GetDlgItemInt(hwndDlg,IDC_EDIT1,&b,FALSE)*1000;
+      file_timeout=wndDlg.GetDlgItemInt(IDC_EDIT1,&b,FALSE)*1000;
       if (!b || file_timeout > 0x10000000) file_timeout=0x10000000;
       g_text_dirty=1;
       g_keytimeouttime=GetTickCount()+file_timeout;
@@ -563,6 +567,7 @@ INT_PTR WINAPI TimeoutProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM /*lPar
 
 INT_PTR WINAPI PasswdProc2(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM /*lParam*/)
 {
+  CWindow wndDlg(hwndDlg);
   if (uMsg == WM_INITDIALOG)
   {
     return 1;
@@ -573,7 +578,7 @@ INT_PTR WINAPI PasswdProc2(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM /*lPar
     {
       char buf[1024],buf2[1024];
       SecureZeroMemory(buf,sizeof(buf));
-      GetDlgItemText(hwndDlg,IDC_EDIT1,buf,_countof(buf));
+      wndDlg.GetDlgItemText(IDC_EDIT1,buf,_countof(buf));
       SHAify s;
       s.add((unsigned char *)buf,strlen(buf));
 	  SecureZeroMemory(buf,sizeof(buf));
@@ -582,14 +587,14 @@ INT_PTR WINAPI PasswdProc2(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM /*lPar
       s.reset();
       if (memcmp(g_shakey,b,20))
       {
-        MessageBox(hwndDlg,"Invalid old passphrase",APP_NAME,MB_OK);
+        wndDlg.MessageBox("Invalid old passphrase",APP_NAME,MB_OK);
         return 0;
       }
-      GetDlgItemText(hwndDlg,IDC_EDIT2,buf,_countof(buf));
-      GetDlgItemText(hwndDlg,IDC_EDIT3,buf2,_countof(buf2));
+      wndDlg.GetDlgItemText(IDC_EDIT2,buf,_countof(buf));
+      wndDlg.GetDlgItemText(IDC_EDIT3,buf2,_countof(buf2));
       if (strcmp(buf,buf2))
       {
-        MessageBox(hwndDlg,"New passphrases do not match",APP_NAME,MB_OK);
+        wndDlg.MessageBox("New passphrases do not match",APP_NAME,MB_OK);
         return 0;
       }
       s.add((unsigned char *)buf,strlen(buf));
@@ -799,13 +804,13 @@ static void OnPaint(HWND hwnd)
 	hdc.SetTextColor(config_bcolor2);
 	hdc.SetBkColor(config_bcolor1);
 
-	hOldPen=SelectObject(hdc,hPen);
-	hOldBrush=SelectObject(hdc,hBrush);
-	Rectangle(hdc,r.left,r.top,r.right,r.bottom);
+	hOldPen=hdc.SelectPen(hPen);
+	hOldBrush=hdc.SelectBrush(hBrush);
+	hdc.Rectangle(r.left,r.top,r.right,r.bottom);
 	r.top++;
 	hdc.DrawText(app_name+8,-1,&r,DT_CENTER|DT_SINGLELINE|(g_active?DT_TOP:DT_VCENTER));
-	SelectObject(hdc,hOldPen);
-	SelectObject(hdc,hOldBrush);
+	hdc.SelectPen(hOldPen);
+	hdc.SelectBrush(hOldBrush);
 	DeleteObject(hPen);
 	DeleteObject(hBrush);
 }
@@ -911,10 +916,11 @@ DWORD CALLBACK esCb(DWORD_PTR dwCookie, LPBYTE pbBuff, LONG cb, DWORD *pcb)
  
 INT_PTR WINAPI PasswdProc1_new(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM /*lParam*/)
 {
+  CWindow wndDlg(hwndDlg);
   if (uMsg == WM_INITDIALOG)
   {
-    SetWindowText(hwndDlg,APP_NAME " Passphrase Set");
-    EnableWindow(GetDlgItem(hwndDlg,IDC_EDIT1),0);
+    wndDlg.SetWindowText(APP_NAME " Passphrase Set");
+    EnableWindow(wndDlg.GetDlgItem(IDC_EDIT1),0);
     return 1;
   }
   if (uMsg == WM_COMMAND)
@@ -925,11 +931,11 @@ INT_PTR WINAPI PasswdProc1_new(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM /*
       char buf2[1024];
 	  SecureZeroMemory(buf,sizeof(buf));
       SecureZeroMemory(buf2,sizeof(buf2));
-      GetDlgItemText(hwndDlg,IDC_EDIT2,buf,_countof(buf));
-      GetDlgItemText(hwndDlg,IDC_EDIT3,buf2,_countof(buf2));
+      wndDlg.GetDlgItemText(IDC_EDIT2,buf,_countof(buf));
+      wndDlg.GetDlgItemText(IDC_EDIT3,buf2,_countof(buf2));
       if (strcmp(buf,buf2))
       {
-        MessageBox(hwndDlg,"New passphrases do not match",APP_NAME,MB_OK);
+        wndDlg.MessageBox("New passphrases do not match",APP_NAME,MB_OK);
         return 0;
       }
       SHAify s;
@@ -956,6 +962,7 @@ INT_PTR WINAPI PasswdProc1_new(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM /*
 
 INT_PTR WINAPI PasswdProc1(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM /*lParam*/)
 {
+  CWindow wndDlg(hwndDlg);
   if (uMsg == WM_INITDIALOG)
   {
     return 1;
@@ -966,7 +973,7 @@ INT_PTR WINAPI PasswdProc1(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM /*lPar
     {
       char buf[1024];
       SecureZeroMemory(buf,sizeof(buf));
-      GetDlgItemText(hwndDlg,IDC_EDIT1,buf,_countof(buf));
+      wndDlg.GetDlgItemText(IDC_EDIT1,buf,_countof(buf));
       SHAify s;
       s.add((unsigned char *)buf,strlen(buf));
 	  SecureZeroMemory(buf, sizeof(buf));
@@ -1213,19 +1220,20 @@ static char pep_n[128];
 
 static INT_PTR WINAPI ProfEditProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM /*lParam*/) 
 {
+  CWindow wndDlg(hwndDlg);
   switch (uMsg)
   {
     case WM_INITDIALOG:
-      SetWindowText(hwndDlg,pep_mode?pep_mode==2?"Create Profile":"Rename Profile":"Copy Profile");
-      SetDlgItemText(hwndDlg,IDC_EDIT1,pep_n);
-      SetDlgItemText(hwndDlg,IDC_EDIT2,pep_mode != 1 ? "new profile" : pep_n);
+      wndDlg.SetWindowText(pep_mode?pep_mode==2?"Create Profile":"Rename Profile":"Copy Profile");
+      wndDlg.SetDlgItemText(IDC_EDIT1,pep_n);
+      wndDlg.SetDlgItemText(IDC_EDIT2,pep_mode != 1 ? "new profile" : pep_n);
     return 0;
     case WM_COMMAND:
       switch (LOWORD(wParam))
       {
         case IDOK:
         case IDCANCEL:
-          GetDlgItemText(hwndDlg,IDC_EDIT2,pep_n,_countof(pep_n));
+          wndDlg.GetDlgItemText(IDC_EDIT2,pep_n,_countof(pep_n));
           EndDialog(hwndDlg,LOWORD(wParam)==IDCANCEL);
         return 0;
       }
@@ -1236,14 +1244,15 @@ static INT_PTR WINAPI ProfEditProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARA
 
 INT_PTR WINAPI ProfilesProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM /*lParam*/) 
 {
+  CWindow wndDlg(hwndDlg);
   switch (uMsg)
   {
     case WM_INITDIALOG:
 
-      SetWindowText(hwndDlg,APP_NAME " Profile Manager");
+      wndDlg.SetWindowText(APP_NAME " Profile Manager");
 
       {
-        HWND hwndList=GetDlgItem(hwndDlg,IDC_LIST1);
+        CListBox wndList(wndDlg.GetDlgItem(IDC_LIST1));
         WIN32_FIND_DATA fd;
         HANDLE h;
 
@@ -1259,7 +1268,7 @@ INT_PTR WINAPI ProfilesProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM /*lPa
             {
 			  CPathT<CAtlString> profile{fd.cFileName};
 			  profile.RemoveExtension();
-			  SendMessage(hwndList,LB_ADDSTRING,0,(LPARAM)(LPCSTR)profile);
+			  wndList.AddString(profile);
               gotDefault=1;
             }
           }
@@ -1268,11 +1277,11 @@ INT_PTR WINAPI ProfilesProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM /*lPa
         }
         if (!gotDefault) 
         {
-          SendMessage(hwndList,LB_ADDSTRING,0,(LPARAM)profilename);
+          wndList.AddString(profilename);
         }
-        LRESULT l=SendMessage(hwndList,LB_FINDSTRINGEXACT,(WPARAM)-1,(LPARAM)profilename);
+        LRESULT l=wndList.FindStringExact(-1,profilename);
         if (l == LB_ERR) l=0;
-        SendMessage(hwndList,LB_SETCURSEL,(WPARAM)l,0);
+        wndList.SetCurSel(l);
       }
     return 0;
     case WM_COMMAND:
@@ -1281,22 +1290,23 @@ INT_PTR WINAPI ProfilesProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM /*lPa
         case IDC_RENAME:
         case IDC_CLONE:
           {
-            LRESULT l=SendDlgItemMessage(hwndDlg,IDC_LIST1,LB_GETCURSEL,0,0);
+			CListBox wndList(wndDlg.GetDlgItem(IDC_LIST1));
+            LRESULT l=wndList.GetCurSel();
             if (l != LB_ERR)
             {
               pep_mode=LOWORD(wParam) == IDC_RENAME;
-              SendDlgItemMessage(hwndDlg,IDC_LIST1,LB_GETTEXT,(WPARAM)l,(LPARAM)pep_n);
+              wndList.GetText(l,pep_n); //FIXME unsafe
               CPathT<CAtlString> oldfn = GetModuleDirectory();
 			  oldfn += pep_n;
 			  oldfn += ".sex";
-              if (!DialogBox(hMainInstance,MAKEINTRESOURCE(IDD_PROFILE_MOD),hwndDlg,ProfEditProc) && pep_n[0])
+              if (!DialogBox(hMainInstance,MAKEINTRESOURCE(IDD_PROFILE_MOD),wndDlg,ProfEditProc) && pep_n[0])
               {
                 char tmp[1024+1024];
 				CAtlString window_name = "SafeSex_";
 				window_name += pep_n;
 				if (IsProfileInUse(window_name)) 
                 {
-                  MessageBox(hwndDlg,"Can't copy or rename profile of that name, currently running",APP_NAME " Error",MB_OK|MB_ICONEXCLAMATION);
+                  wndDlg.MessageBox("Can't copy or rename profile of that name, currently running",APP_NAME " Error",MB_OK|MB_ICONEXCLAMATION);
                   return 0;
                 }
 				CPathT<CAtlString> temp = GetModuleDirectory();
@@ -1317,12 +1327,12 @@ INT_PTR WINAPI ProfilesProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM /*lPa
                     else CopyFile(oldfn,tmp,FALSE);
 
 
-                    if (LOWORD(wParam) == IDC_RENAME) SendDlgItemMessage(hwndDlg,IDC_LIST1,LB_DELETESTRING,(WPARAM)l,0);
+                    if (LOWORD(wParam) == IDC_RENAME) wndDlg.SendDlgItemMessage(IDC_LIST1,LB_DELETESTRING,(WPARAM)l,0);
 
-                    l=SendDlgItemMessage(hwndDlg,IDC_LIST1,LB_ADDSTRING,0,(LPARAM)pep_n);
-                    SendDlgItemMessage(hwndDlg,IDC_LIST1,LB_SETCURSEL,(WPARAM)l,0);
+                    l=wndList.AddString(pep_n);
+                    wndList.SetCurSel(l);
                   }
-                  else MessageBox(hwndDlg,LOWORD(wParam) == IDC_RENAME ? "Error renaming profile" : "Error copying profile",APP_NAME " Error",MB_OK|MB_ICONEXCLAMATION);
+                  else wndDlg.MessageBox(LOWORD(wParam) == IDC_RENAME ? "Error renaming profile" : "Error copying profile",APP_NAME " Error",MB_OK|MB_ICONEXCLAMATION);
                 }
               }
             }
@@ -1332,13 +1342,13 @@ INT_PTR WINAPI ProfilesProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM /*lPa
           {
             pep_mode=2;
             StringCchCopy(pep_n, _countof(pep_n), "NULL");
-            if (!DialogBox(hMainInstance,MAKEINTRESOURCE(IDD_PROFILE_MOD),hwndDlg,ProfEditProc) && pep_n[0])
+            if (!DialogBox(hMainInstance,MAKEINTRESOURCE(IDD_PROFILE_MOD),wndDlg,ProfEditProc) && pep_n[0])
             {
               CAtlString window_name = "SafeSex_";
 			  window_name += pep_n;
 	          if (IsProfileInUse(window_name)) 
               {
-                MessageBox(hwndDlg,"Can't create profile of that name, already running",APP_NAME " Error",MB_OK|MB_ICONEXCLAMATION);
+                wndDlg.MessageBox("Can't create profile of that name, already running",APP_NAME " Error",MB_OK|MB_ICONEXCLAMATION);
                 return 0;
               }
 
@@ -1349,39 +1359,39 @@ INT_PTR WINAPI ProfilesProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM /*lPa
               if (h != INVALID_HANDLE_VALUE)
               {
                 CloseHandle(h);
-                LRESULT l=SendDlgItemMessage(hwndDlg,IDC_LIST1,LB_ADDSTRING,0,(LPARAM)pep_n);
-                SendDlgItemMessage(hwndDlg,IDC_LIST1,LB_SETCURSEL,(WPARAM)l,0);
+                LRESULT l=wndDlg.SendDlgItemMessage(IDC_LIST1,LB_ADDSTRING,0,(LPARAM)pep_n);
+                wndDlg.SendDlgItemMessage(IDC_LIST1,LB_SETCURSEL,(WPARAM)l,0);
               }
-              else MessageBox(hwndDlg,"Error creating profile",APP_NAME " Error",MB_OK|MB_ICONEXCLAMATION);
+              else wndDlg.MessageBox("Error creating profile",APP_NAME " Error",MB_OK|MB_ICONEXCLAMATION);
             }
           }
         return 0;
         case IDC_DELETE:
           {
-            LRESULT l=SendDlgItemMessage(hwndDlg,IDC_LIST1,LB_GETCURSEL,0,0);
+            LRESULT l=wndDlg.SendDlgItemMessage(IDC_LIST1,LB_GETCURSEL,0,0);
             if (l != LB_ERR)
             {
               char tmp[1024+1024];
 			  StringCchCopy(tmp, _countof(tmp), "SafeSex_");
-              SendDlgItemMessage(hwndDlg,IDC_LIST1,LB_GETTEXT,(WPARAM)l,(LPARAM)(tmp+strlen(tmp)));
+              wndDlg.SendDlgItemMessage(IDC_LIST1,LB_GETTEXT,(WPARAM)l,(LPARAM)(tmp+strlen(tmp)));
 	            if (FindWindow(tmp,NULL)) 
               {
-                MessageBox(hwndDlg,"Can't delete profile of that name, currently running",APP_NAME " Error",MB_OK|MB_ICONEXCLAMATION);
+                wndDlg.MessageBox("Can't delete profile of that name, currently running",APP_NAME " Error",MB_OK|MB_ICONEXCLAMATION);
                 return 0;
               }
               GetModuleFileName(hMainInstance,tmp,_countof(tmp));
 			  PathRemoveFileSpec(tmp);
               PathAddBackslash(tmp);
-              SendDlgItemMessage(hwndDlg,IDC_LIST1,LB_GETTEXT,(WPARAM)l,(LPARAM)(tmp+strlen(tmp)));
+              wndDlg.SendDlgItemMessage(IDC_LIST1,LB_GETTEXT,(WPARAM)l,(LPARAM)(tmp+strlen(tmp)));
 			  CPathT<CAtlString> s{tmp};
 			  s += ".sex";
 			  if (DeleteFile(s))
               {
                 s.RenameExtension(".ini");
 				DeleteFile(s);
-                SendDlgItemMessage(hwndDlg,IDC_LIST1,LB_DELETESTRING,(WPARAM)l,0);
+                wndDlg.SendDlgItemMessage(IDC_LIST1,LB_DELETESTRING,(WPARAM)l,0);
               }
-              else MessageBox(hwndDlg,"Error deleting profile",APP_NAME " Error",MB_OK|MB_ICONEXCLAMATION);              
+              else wndDlg.MessageBox("Error deleting profile",APP_NAME " Error",MB_OK|MB_ICONEXCLAMATION);              
             }
           }
         return 0;
@@ -1389,20 +1399,20 @@ INT_PTR WINAPI ProfilesProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM /*lPa
           if (HIWORD(wParam) != LBN_DBLCLK) return 0;
         case IDOK:
           {
-            LRESULT l=SendDlgItemMessage(hwndDlg,IDC_LIST1,LB_GETCURSEL,0,0);
+            LRESULT l=wndDlg.SendDlgItemMessage(IDC_LIST1,LB_GETCURSEL,0,0);
             if (l != LB_ERR)
             {
-              SendDlgItemMessage(hwndDlg,IDC_LIST1,LB_GETTEXT,(WPARAM)l,(LPARAM)profilename);
+              wndDlg.SendDlgItemMessage(IDC_LIST1,LB_GETTEXT,(WPARAM)l,(LPARAM)profilename);
               EndDialog(hwndDlg,1); 
             }
           }
         return 0;
         case IDCANCEL: 
           {
-            LRESULT l=SendDlgItemMessage(hwndDlg,IDC_LIST1,LB_GETCURSEL,0,0);
+            LRESULT l=wndDlg.SendDlgItemMessage(IDC_LIST1,LB_GETCURSEL,0,0);
             if (l != LB_ERR)
             {
-              SendDlgItemMessage(hwndDlg,IDC_LIST1,LB_GETTEXT,(WPARAM)l,(LPARAM)profilename);
+              wndDlg.SendDlgItemMessage(IDC_LIST1,LB_GETTEXT,(WPARAM)l,(LPARAM)profilename);
             }
           }
           EndDialog(hwndDlg,0); 
