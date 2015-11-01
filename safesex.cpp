@@ -787,12 +787,11 @@ static void OnMove(HWND /*hwnd*/, int /*x*/, int /*y*/)
 
 static void OnPaint(HWND hwnd)
 {
-	HBRUSH hBrush;
-	HPEN hPen;
-  HGDIOBJ hOldPen,hOldBrush;
+	HBRUSH hBrush, hOldBrush;
+	HPEN hPen, hOldPen;
 	RECT r;
-	CWindow wnd;
-	CPaintDC hdc{hwnd};
+	CWindow wnd(hwnd);
+	CPaintDC hdc{wnd};
 	wnd.GetClientRect(&r);
 
 	hPen=CreatePen(PS_SOLID,0,config_bcolor2);
