@@ -11,6 +11,8 @@
 #pragma warning (disable:4302) //truncation
 #pragma warning (disable:4625) //copy ctor could not be generated
 #pragma warning (disable:4626) //assignment operator could not be generated
+#pragma warning (disable:4555) //expr has no side effect
+#pragma warning (disable:4265) //class has virtual fns but dtor is not virtual
 #include <windows.h>
 #include <windowsx.h>
 #include <richedit.h>
@@ -30,6 +32,8 @@
 #pragma warning (default:4302)
 #pragma warning (default:4625)
 #pragma warning (default:4626)
+#pragma warning (default:4555)
+#pragma warning (default:4265)
 
 //project
 #include "blowfish.h"
